@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PEM 2025 · Performance Dashboard · Blue Star Group</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07090f;
+  --surface: #0d1017;
+  --card: #111520;
+  --card2: #161b28;
+  --border: #1d2235;
+  --border2: #252d42;
+  --text: #dde4f5;
+  --muted: #4e566e;
+  --muted2: #7d89a8;
+  --top:    #22c55e;
+  --top-bg: rgba(34,197,94,0.09);
+  --top-b:  rgba(34,197,94,0.22);
+  --mh:     #f59e0b;
+  --mh-bg:  rgba(245,158,11,0.09);
+  --mh-b:   rgba(245,158,11,0.22);
+  --mid:    #f97316;
+  --mid-bg: rgba(249,115,22,0.09);
+  --mid-b:  rgba(249,115,22,0.22);
+  --low:    #ef4444;
+  --low-bg: rgba(239,68,68,0.09);
+  --low-b:  rgba(239,68,68,0.22);
+  --accent: #5b6ef5;
+  --accent2: #818cf8;
+  --gold: #fbbf24;
+  --sob:    #a78bfa;
+  --sob-bg: rgba(167,139,250,0.09);
+  --sob-b:  rgba(167,139,250,0.28);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:13px;line-height:1.5;min-height:100vh;display:flex;}
+
+/* SIDEBAR */
+.sidebar{width:228px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:22px 14px;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;gap:20px;}
+.logo h2{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#fff;letter-spacing:-.2px;}
+.logo p{font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px;}
+
+.sb-section{}
+.sb-label{font-size:9px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;padding-left:2px;}
+
+.view-btn{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:8px;cursor:pointer;transition:all .15s;color:var(--muted2);font-size:11.5px;font-weight:500;border:1px solid transparent;margin-bottom:3px;}
+.view-btn:hover{background:rgba(91,110,245,0.08);color:var(--accent2);}
+.view-btn.active{background:rgba(91,110,245,0.13);border-color:rgba(91,110,245,0.28);color:var(--accent2);}
+.vdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.vcount{margin-left:auto;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:var(--muted);}
+
+.filter-group{margin-bottom:11px;}
+.fl{font-size:9px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+select,.si{width:100%;background:var(--card);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:6px 9px;font-family:'IBM Plex Sans',sans-serif;font-size:11px;outline:none;cursor:pointer;transition:border-color .15s;-webkit-appearance:none;appearance:none;}
+select:focus,.si:focus{border-color:var(--accent);}
+option{background:#14182a;}
+
+.btn-reset{width:100%;padding:7px;background:rgba(91,110,245,0.1);border:1px solid rgba(91,110,245,0.25);color:var(--accent2);border-radius:7px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;font-size:11px;font-weight:600;transition:all .15s;}
+.btn-reset:hover{background:rgba(91,110,245,0.2);}
+
+.filter-active-bar{padding:8px 10px;background:rgba(91,110,245,0.08);border:1px solid rgba(91,110,245,0.2);border-radius:7px;font-size:10px;color:var(--accent2);display:none;align-items:center;gap:6px;}
+.filter-active-bar.show{display:flex;}
+
+/* MAIN */
+.main{flex:1;padding:26px 28px;overflow-x:hidden;min-width:0;}
+
+/* HEADER */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+.ph-left h1{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#fff;}
+.ph-left h1 span{color:var(--accent2);}
+.ph-left p{font-size:11px;color:var(--muted2);margin-top:3px;}
+.ph-right{text-align:right;}
+.ph-count{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:#fff;line-height:1;}
+.ph-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+
+/* KPI ROW */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px;}
+.kpi{background:var(--card);border-radius:11px;padding:14px 16px;border:1px solid var(--border);position:relative;overflow:hidden;cursor:pointer;transition:border-color .15s;}
+.kpi:hover{border-color:var(--border2);}
+.kpi.active-filter{border-color:var(--accent)!important;}
+.kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
+.kpi.kTop::after{background:var(--top);}
+.kpi.kMH::after{background:var(--mh);}
+.kpi.kMid::after{background:var(--mid);}
+.kpi.kLow::after{background:var(--low);}
+.kpi.kSob::after{background:var(--sob);}
+.kpi-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;line-height:1;margin-bottom:3px;transition:all .3s;}
+.kpi-name{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;}
+.kpi-sub{font-size:10px;color:var(--muted2);margin-top:3px;}
+.kpi-bar{height:3px;background:var(--border);border-radius:2px;margin-top:8px;overflow:hidden;}
+.kpi-bar-fill{height:100%;border-radius:2px;transition:width .5s ease;}
+.kpi-avg{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--muted2);margin-top:4px;}
+
+/* CHARTS ROW */
+.charts-row{display:grid;grid-template-columns:220px 1fr 1fr;gap:14px;margin-bottom:18px;}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:16px;}
+.ct{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:#fff;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px;}
+.ct-sub{font-size:9px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;margin-left:auto;}
+
+/* DONUT */
+.donut-wrap{position:relative;width:120px;height:120px;margin:0 auto 12px;}
+.donut-wrap svg{transform:rotate(-90deg);}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
+.donut-pct{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;color:#fff;}
+.donut-cat{font-size:9px;color:var(--muted);letter-spacing:.5px;}
+.dl-item{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid rgba(29,34,53,0.6);cursor:pointer;transition:opacity .15s;}
+.dl-item:last-child{border-bottom:none;}
+.dl-item:hover{opacity:.8;}
+.dl-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0;}
+.dl-label{font-size:10px;color:var(--muted2);flex:1;}
+.dl-count{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;}
+.dl-pct{font-size:9px;color:var(--muted);min-width:30px;text-align:right;}
+
+/* BAR CHARTS */
+.bar-list{display:flex;flex-direction:column;gap:6px;}
+.bar-item{display:flex;align-items:center;gap:7px;}
+.bar-nm{font-size:10px;color:var(--muted2);width:120px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default;}
+.bar-track{flex:1;height:16px;background:var(--border);border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:5px;font-size:9px;font-weight:700;color:rgba(255,255,255,.85);font-family:'Syne',sans-serif;transition:width .6s ease;}
+.bar-n{font-size:9px;color:var(--muted2);width:18px;text-align:right;flex-shrink:0;font-weight:600;}
+
+/* UDN COMPARISON */
+.udn-grid{display:flex;flex-direction:column;gap:7px;}
+.udn-row{display:flex;align-items:center;gap:8px;}
+.udn-flag{font-size:14px;width:20px;text-align:center;flex-shrink:0;}
+.udn-name{font-size:10px;color:var(--muted2);width:80px;flex-shrink:0;}
+.udn-track{flex:1;height:14px;background:var(--border);border-radius:3px;overflow:hidden;}
+.udn-fill{height:100%;border-radius:3px;transition:width .6s ease;}
+.udn-val{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;width:32px;text-align:right;flex-shrink:0;}
+.udn-n{font-size:9px;color:var(--muted);width:18px;text-align:right;}
+
+/* TABLE */
+.table-section{background:var(--card);border:1px solid var(--border);border-radius:11px;overflow:hidden;}
+.table-header-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px;border-bottom:1px solid var(--border);}
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead th{padding:8px 12px;text-align:left;font-size:9px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border2);white-space:nowrap;cursor:pointer;user-select:none;transition:color .15s;}
+thead th:hover{color:var(--accent2);}
+thead th.sorted{color:var(--accent2);}
+tbody tr{border-bottom:1px solid rgba(29,34,53,.6);transition:background .1s;}
+tbody tr:hover{background:rgba(255,255,255,.02);}
+tbody tr:last-child{border-bottom:none;}
+td{padding:8px 12px;vertical-align:middle;white-space:nowrap;}
+.td-name{font-weight:600;color:#fff;font-size:12px;}
+.td-sub{font-size:10px;color:var(--muted2);margin-top:1px;white-space:normal;max-width:180px;}
+.td-udn{font-size:11px;}
+.td-div{font-size:10px;color:var(--muted2);}
+.rb{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:20px;padding:0 5px;border-radius:5px;font-family:'Syne',sans-serif;font-size:10px;font-weight:800;background:rgba(255,255,255,.04);color:var(--muted2);}
+.rb.g1{background:rgba(251,191,36,.15);color:var(--gold);}
+.rb.top3{background:rgba(251,191,36,.12);color:var(--gold);}
+.rb.top10{background:rgba(91,110,245,.12);color:var(--accent2);}
+.rb.none{background:transparent;color:var(--muted);font-size:13px;}
+.score-wrap{display:flex;align-items:center;gap:6px;}
+.smini{width:48px;height:4px;background:var(--border);border-radius:2px;overflow:hidden;flex-shrink:0;}
+.smini-f{height:100%;border-radius:2px;}
+.sval{font-family:'Syne',sans-serif;font-size:12px;font-weight:800;}
+.cat-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;border:1px solid;white-space:nowrap;}
+.cat-badge.Top{color:var(--top);background:var(--top-bg);border-color:var(--top-b);}
+.cat-badge.Middle-High{color:var(--mh);background:var(--mh-bg);border-color:var(--mh-b);}
+.cat-badge.Middle{color:var(--mid);background:var(--mid-bg);border-color:var(--mid-b);}
+.cat-badge.Low{color:var(--low);background:var(--low-bg);border-color:var(--low-b);}
+.cat-badge.Sobresaliente{color:var(--sob);background:var(--sob-bg);border-color:var(--sob-b);}
+.lider-tag{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;background:rgba(91,110,245,.1);color:var(--accent2);border:1px solid rgba(91,110,245,.2);}
+.empty-state{text-align:center;padding:48px;color:var(--muted);}
+.empty-state h3{font-size:14px;color:var(--muted2);margin-bottom:4px;}
+
+/* PAGINATION */
+.pag{display:flex;align-items:center;gap:5px;padding:12px 16px;border-top:1px solid var(--border);justify-content:center;}
+.pb{padding:4px 9px;border-radius:5px;border:1px solid var(--border2);background:var(--card);color:var(--muted2);font-size:10px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'IBM Plex Sans',sans-serif;}
+.pb:hover{border-color:var(--accent);color:var(--accent2);}
+.pb.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.pb:disabled{opacity:.25;cursor:not-allowed;}
+.pi{font-size:10px;color:var(--muted);padding:0 6px;}
+
+/* >110 ERROR BADGE */
+.cat-badge.Error{color:#fff;background:rgba(168,85,247,0.18);border-color:rgba(168,85,247,0.45);}
+.score-error{color:#a855f7;font-weight:800;}
+.error-row td{background:rgba(168,85,247,0.04)!important;}
+.error-row:hover td{background:rgba(168,85,247,0.08)!important;}
+.error-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;background:rgba(168,85,247,0.15);color:#a855f7;border:1px solid rgba(168,85,247,0.3);margin-left:4px;}
+.over110-alert{display:none;align-items:center;gap:10px;padding:10px 14px;background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.3);border-radius:9px;margin-bottom:14px;font-size:11px;color:#c084fc;}
+.over110-alert.show{display:flex;}
+.over110-alert strong{color:#e9d5ff;font-weight:700;}
+
+/* FORCED DISTRIBUTION */
+.distrib-section{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:16px;margin-bottom:18px;}
+.distrib-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;}
+.distrib-col{display:flex;flex-direction:column;gap:6px;}
+.distrib-cat-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;text-align:center;padding:3px 0;}
+.distrib-bar-wrap{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:80px;background:var(--border);border-radius:5px;overflow:hidden;position:relative;}
+.distrib-bar-inner{width:100%;border-radius:5px 5px 0 0;transition:height .6s ease;position:absolute;bottom:0;}
+.distrib-stats{text-align:center;}
+.distrib-n{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#fff;line-height:1;}
+.distrib-pct{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;margin-top:1px;}
+
+
+/* TAB NAVIGATION */
+.tab-nav{display:flex;gap:4px;margin-bottom:22px;border-bottom:1px solid var(--border);}
+.tab-btn{padding:8px 18px;border-radius:8px 8px 0 0;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.3px;cursor:pointer;border:1px solid transparent;border-bottom:none;color:var(--muted2);background:transparent;transition:all .15s;margin-bottom:-1px;white-space:nowrap;}
+.tab-btn:hover{color:var(--text);background:rgba(255,255,255,.03);}
+.tab-btn.active{color:#fff;background:var(--card);border-color:var(--border);border-bottom-color:var(--card);}
+.tab-panel{display:none;}.tab-panel.active{display:block;}
+
+/* TOP/BOTTOM 5% TAB */
+.xkpi-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+.xkpi{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:16px 20px;display:flex;align-items:center;gap:14px;}
+.xkpi-icon{font-size:26px;flex-shrink:0;}
+.xkpi-val{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;line-height:1;}
+.xkpi-name{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px;font-weight:700;}
+.xkpi-sub{font-size:11px;color:var(--muted2);margin-top:3px;}
+
+.x2col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+.xcol{background:var(--card);border:1px solid var(--border);border-radius:11px;overflow:hidden;}
+.xcol-hdr{padding:11px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.xcol-title{font-family:'Syne',sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;}
+.xcol-badge{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;}
+.xt{width:100%;border-collapse:collapse;}
+.xt th{padding:7px 11px;font-size:9px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border2);text-align:left;white-space:nowrap;}
+.xt td{padding:8px 11px;border-bottom:1px solid rgba(29,34,53,.5);vertical-align:middle;}
+.xt tr:last-child td{border-bottom:none;}
+.xt tr:hover td{background:rgba(255,255,255,.02);}
+.xpos{font-family:'Syne',sans-serif;font-size:11px;font-weight:800;color:var(--muted2);}
+.xname{font-weight:600;color:#fff;font-size:11px;white-space:nowrap;}
+.xrole{font-size:9px;color:var(--muted2);margin-top:1px;max-width:160px;white-space:normal;line-height:1.3;}
+.xscore{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;}
+.xdiv{font-size:9px;color:var(--muted2);white-space:nowrap;}
+.xudn{font-size:10px;white-space:nowrap;}
+
+.xdiv-section{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:16px;}
+.xdiv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px;margin-top:12px;}
+.xdiv-card{background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:12px 14px;}
+.xdiv-name{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:#fff;margin-bottom:8px;text-transform:uppercase;letter-spacing:.3px;display:flex;align-items:center;justify-content:space-between;}
+.xdiv-n{font-size:9px;color:var(--muted);font-family:'IBM Plex Sans',sans-serif;text-transform:none;letter-spacing:0;font-weight:400;}
+.xhalves{display:flex;gap:6px;}
+.xhalf{flex:1;padding:8px 10px;border-radius:6px;}
+.xhalf.top{background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.18);}
+.xhalf.bot{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.18);}
+.xhalf-lbl{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;}
+.xhalf-name{font-size:10px;font-weight:600;color:#fff;line-height:1.3;}
+.xhalf-score{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;margin-top:2px;}
+.xhalf-role{font-size:9px;color:var(--muted2);margin-top:2px;line-height:1.3;}
+.xempty{text-align:center;padding:40px;color:var(--muted);font-size:11px;}
+
+/* TRANSITIONS */
+.kpi-val,.dl-count,.dl-pct{transition:all .25s;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- LOADER OVERLAY -->
+<div id="loaderOverlay" style="position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px;">
+  <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#fff;">BSG · PEM 2025</div>
+  <div style="font-size:11px;color:var(--muted2);margin-top:-6px;">Performance Dashboard</div>
+  <div style="width:240px;height:2px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:6px;">
+    <div style="height:100%;background:var(--accent);border-radius:2px;animation:ldbar 1.6s ease-in-out infinite;"></div>
+  </div>
+  <div id="loaderStatus" style="font-size:11px;color:var(--muted2);">Cargando datos desde Google Sheets...</div>
+  <div id="loaderError" style="display:none;font-size:11px;color:var(--low);margin-top:4px;"></div>
+</div>
+<style>
+@keyframes ldbar { 0%{transform:translateX(-100%)} 50%{transform:translateX(0%)} 100%{transform:translateX(100%)} }
+#mainContent{display:none;width:100%;}
+</style>
+
+<div id="mainContent">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <h2>BSG · PEM 2025</h2>
+    <p>Performance Management</p>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-label">Vista rápida</div>
+    <div class="view-btn active" onclick="setView('all')" id="vb-all">
+      <span class="vdot" style="background:var(--accent2)"></span>Todos
+      <span class="vcount" id="vc-all">177</span>
+    </div>
+    <div class="view-btn" onclick="setView('top')" id="vb-top">
+      <span class="vdot" style="background:var(--top)"></span>Top Performers
+      <span class="vcount" id="vc-top">129</span>
+    </div>
+    <div class="view-btn" onclick="setView('follow')" id="vb-follow">
+      <span class="vdot" style="background:var(--low)"></span>Seguimiento
+      <span class="vcount" id="vc-follow">13</span>
+    </div>
+    <div class="view-btn" onclick="setView('leaders')" id="vb-leaders">
+      <span class="vdot" style="background:var(--gold)"></span>Liderazgo
+      <span class="vcount" id="vc-leaders">48</span>
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-label">Filtros</div>
+    <div class="filter-group">
+      <div class="fl">Buscar</div>
+      <input class="si" type="text" id="searchInput" placeholder="Nombre, cargo…" oninput="applyFilters()">
+    </div>
+    <div class="filter-group">
+      <div class="fl">Unidad de Negocio</div>
+      <select id="filterUDN" onchange="applyFilters()"><option value="">Todas las UDN</option></select>
+    </div>
+    <div class="filter-group">
+      <div class="fl">División</div>
+      <select id="filterDiv" onchange="applyFilters()"><option value="">Todas las divisiones</option></select>
+    </div>
+    <div class="filter-group">
+      <div class="fl">Categoría</div>
+      <select id="filterCat" onchange="applyFilters()">
+        <option value="">Todas</option>
+        <option value="Sobresaliente">★ Sobresaliente (= 110)</option>
+        <option value="Top">⬆ Top (= 100)</option>
+        <option value="Middle High">● Middle High (90–99)</option>
+        <option value="Middle">▼ Middle (80–89)</option>
+        <option value="Low">↓ Low (&lt;80)</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <div class="fl">Solo líderes</div>
+      <select id="filterLider" onchange="applyFilters()">
+        <option value="">Todos</option>
+        <option value="yes">Solo líderes</option>
+        <option value="no">Solo no-líderes</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <div class="fl">Alertas</div>
+      <select id="filterAlert" onchange="applyFilters()">
+        <option value="">Todos</option>
+        <option value="over110">⚠ Puntaje &gt; 110</option>
+      </select>
+    </div>
+    <div id="activeBar" class="filter-active-bar">
+      <span>🔍</span><span id="activeBarText"></span>
+    </div>
+    <button class="btn-reset" onclick="resetFilters()">↺ Limpiar filtros</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <!-- TAB NAVIGATION -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('main')" id="tabn-main">📊 Dashboard General</button>
+    <button class="tab-btn" onclick="switchTab('extremos')" id="tabn-extremos">🎯 Top &amp; Bottom 5% por División</button>
+  </div>
+
+  <!-- TAB 1: DASHBOARD GENERAL -->
+  <div class="tab-panel active" id="tab-main">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div class="ph-left">
+      <h1>Dashboard <span>Performance</span> 2025</h1>
+      <p id="headerSub">Blue Star Group · 177 empleados calificados · todos los filtros activos se reflejan en los gráficos</p>
+    </div>
+    <div class="ph-right">
+      <div class="ph-count" id="resultCount">177</div>
+      <div class="ph-label">empleados visibles</div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi kSob" id="kpi-Sobresaliente" onclick="toggleCatFilter('Sobresaliente')">
+      <div class="kpi-val" style="color:var(--sob)" id="kv-Sobresaliente">35</div>
+      <div class="kpi-name">Sobresaliente</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" id="kb-Sobresaliente" style="background:var(--sob);width:19.8%"></div></div>
+      <div class="kpi-avg" id="ka-Sobresaliente">= 110 pts · 19.8% · cupo 25%</div>
+    </div>
+    <div class="kpi kTop" id="kpi-Top" onclick="toggleCatFilter('Top')">
+      <div class="kpi-val" style="color:var(--top)" id="kv-Top">94</div>
+      <div class="kpi-name">Top</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" id="kb-Top" style="background:var(--top);width:53.1%"></div></div>
+      <div class="kpi-avg" id="ka-Top">= 100 pts · 53.1%</div>
+    </div>
+    <div class="kpi kMH" id="kpi-Middle High" onclick="toggleCatFilter('Middle High')">
+      <div class="kpi-val" style="color:var(--mh)" id="kv-Middle High">35</div>
+      <div class="kpi-name">Middle High</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" id="kb-Middle High" style="background:var(--mh);width:19.8%"></div></div>
+      <div class="kpi-avg" id="ka-Middle High">90–99 pts · 19.8%</div>
+    </div>
+    <div class="kpi kMid" id="kpi-Middle" onclick="toggleCatFilter('Middle')">
+      <div class="kpi-val" style="color:var(--mid)" id="kv-Middle">9</div>
+      <div class="kpi-name">Middle</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" id="kb-Middle" style="background:var(--mid);width:5.1%"></div></div>
+      <div class="kpi-avg" id="ka-Middle">80–89 pts · 5.1%</div>
+    </div>
+    <div class="kpi kLow" id="kpi-Low" onclick="toggleCatFilter('Low')">
+      <div class="kpi-val" style="color:var(--low)" id="kv-Low">4</div>
+      <div class="kpi-name">Low</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" id="kb-Low" style="background:var(--low);width:2.3%"></div></div>
+      <div class="kpi-avg" id="ka-Low">&lt;80 pts · 2.3%</div>
+    </div>
+  </div>
+
+  <!-- OVER 110 ALERT -->
+  <div class="over110-alert" id="over110Alert">
+    <span style="font-size:18px">⚠️</span>
+    <div><strong id="over110Count">0</strong> empleado(s) con puntaje <strong>&gt; 110</strong> — fuera del rango permitido. Revisá estas calificaciones antes de cerrar el proceso.</div>
+    <button onclick="quickOver110()" style="margin-left:auto;padding:4px 10px;border-radius:6px;border:1px solid rgba(168,85,247,0.4);background:rgba(168,85,247,0.15);color:#c084fc;font-size:10px;font-weight:700;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;">Ver casos</button>
+  </div>
+
+  <!-- FORCED DISTRIBUTION -->
+  <div class="distrib-section">
+    <div class="ct" style="margin-bottom:14px">
+      Curva de Desempeño
+      <span class="ct-sub">% del conjunto filtrado</span>
+    </div>
+    <div class="distrib-grid" id="distribGrid"></div>
+  </div>
+
+  <!-- CHARTS ROW -->
+  <div class="charts-row">
+    <!-- DONUT -->
+    <div class="chart-card">
+      <div class="ct">Distribución <span class="ct-sub">click = filtrar</span></div>
+      <div class="donut-wrap">
+        <svg width="120" height="120" viewBox="0 0 120 120" id="donutSvg">
+          <circle cx="60" cy="60" r="44" fill="none" stroke="#1d2235" stroke-width="16"/>
+          <circle cx="60" cy="60" r="44" fill="none" stroke="var(--sob)" stroke-width="16" id="ds-Sob" stroke-dasharray="0 276.5" stroke-linecap="butt"/>
+          <circle cx="60" cy="60" r="44" fill="none" stroke="var(--top)" stroke-width="16" id="ds-Top" stroke-dasharray="0 276.5" stroke-linecap="butt"/>
+          <circle cx="60" cy="60" r="44" fill="none" stroke="var(--mh)"  stroke-width="16" id="ds-MH"  stroke-dasharray="0 276.5" stroke-linecap="butt"/>
+          <circle cx="60" cy="60" r="44" fill="none" stroke="var(--mid)" stroke-width="16" id="ds-Mid" stroke-dasharray="0 276.5" stroke-linecap="butt"/>
+          <circle cx="60" cy="60" r="44" fill="none" stroke="var(--low)" stroke-width="16" id="ds-Low" stroke-dasharray="0 276.5" stroke-linecap="butt"/>
+        </svg>
+        <div class="donut-center">
+          <div class="donut-pct" id="donutPct">68%</div>
+          <div class="donut-cat" id="donutCat">TOP</div>
+        </div>
+      </div>
+      <div id="donutLegend"></div>
+    </div>
+
+    <!-- DIVISION BARS -->
+    <div class="chart-card">
+      <div class="ct">Promedio por División <span class="ct-sub">Top 8 visibles</span></div>
+      <div class="bar-list" id="divBars"></div>
+    </div>
+
+    <!-- UDN COMPARISON -->
+    <div class="chart-card">
+      <div class="ct">Comparativa por UDN</div>
+      <div class="udn-grid" id="udnGrid"></div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-section">
+    <div class="table-header-bar">
+      <div class="ct" style="margin-bottom:0">Ranking de Empleados</div>
+      <div style="font-size:9px;color:var(--muted)">↕ click en columna para ordenar</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortBy('rank_global')" id="th-rank_global">Rank Global</th>
+            <th onclick="sortBy('nombre')">Empleado</th>
+            <th onclick="sortBy('udn')">UDN</th>
+            <th onclick="sortBy('division')">División</th>
+            <th onclick="sortBy('score')">Puntaje</th>
+            <th onclick="sortBy('category')">Categoría</th>
+            <th onclick="sortBy('rank_div')">Rank Div.</th>
+            <th onclick="sortBy('rank_udn')">Rank UDN</th>
+            <th onclick="sortBy('rank_lider')">Rank Líder</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div class="empty-state" id="emptyState" style="display:none">
+        <h3>Sin resultados</h3>
+        <p>Probá con otros filtros</p>
+      </div>
+    </div>
+    <div class="pag" id="pagination"></div>
+  </div>
+  </div><!-- /tab-main -->
+
+  <!-- TAB 2: TOP & BOTTOM 5% -->
+  <div class="tab-panel" id="tab-extremos">
+    <div class="page-header">
+      <div class="ph-left">
+        <h1>Top &amp; Bottom <span>5%</span> por División</h1>
+        <p id="xsub">BSG · 177 empleados · distribución dinámica — los filtros del sidebar aplican aquí también</p>
+      </div>
+      <div class="ph-right">
+        <div class="ph-count" id="xcount">177</div>
+        <div class="ph-label">en el análisis</div>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="xkpi-row">
+      <div class="xkpi" style="border-color:rgba(34,197,94,.28)">
+        <div class="xkpi-icon">🏆</div>
+        <div>
+          <div class="xkpi-val" style="color:var(--top)" id="xkv-top">9</div>
+          <div class="xkpi-name">Top 5% BSG</div>
+          <div class="xkpi-sub" id="xks-top">5% de 177 · prom. 110 pts</div>
+        </div>
+      </div>
+      <div class="xkpi" style="border-color:rgba(239,68,68,.28)">
+        <div class="xkpi-icon">⚠️</div>
+        <div>
+          <div class="xkpi-val" style="color:var(--low)" id="xkv-bot">9</div>
+          <div class="xkpi-name">Bottom 5% BSG</div>
+          <div class="xkpi-sub" id="xks-bot">5% de 177 · requieren acompañamiento</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Global tables -->
+    <div class="x2col">
+      <div class="xcol">
+        <div class="xcol-hdr">
+          <div class="xcol-title" style="color:var(--top)">🏆 Top 5% — Mejor Performance</div>
+          <span class="xcol-badge" id="xbn-top" style="background:rgba(34,197,94,.12);color:var(--top)">9 personas</span>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="xt">
+            <thead><tr><th>#</th><th>Empleado</th><th>División</th><th>UDN</th><th>Pts</th></tr></thead>
+            <tbody id="xtop-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="xcol">
+        <div class="xcol-hdr">
+          <div class="xcol-title" style="color:var(--low)">⚠️ Bottom 5% — Requieren Seguimiento</div>
+          <span class="xcol-badge" id="xbn-bot" style="background:rgba(239,68,68,.12);color:var(--low)">9 personas</span>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="xt">
+            <thead><tr><th>#</th><th>Empleado</th><th>División</th><th>UDN</th><th>Pts</th></tr></thead>
+            <tbody id="xbot-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- By Division breakdown -->
+    <div class="xdiv-section">
+      <div class="ct" style="margin-bottom:4px">
+        Top &amp; Bottom 5% por División
+        <span class="ct-sub">mín. 1 persona por cuadrante · se actualiza con los filtros del sidebar</span>
+      </div>
+      <div class="xdiv-grid" id="xdiv-grid"></div>
+    </div>
+  </div><!-- /tab-extremos -->
+
+</main>
+
+<script>
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHE81qpwwXjDSpVQCNkOUpASOcMGbNLdgcWuQ0eq2cqc3PjG60U4KfPZDdGQNLxkLfID09aByc3_Qx/pub?gid=1069764426&single=true&output=csv";
+
+function parseCSV(text) {
+  var lines = text.trim().split('\n');
+  var headers = lines[0].split(',').map(function(h){ return h.trim().replace(/^"|"$/g, ''); });
+  return lines.slice(1).map(function(line){
+    var fields = [];
+    var cur = '', inQ = false;
+    for (var i = 0; i < line.length; i++) {
+      var c = line[i];
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { fields.push(cur.trim()); cur = ''; }
+      else { cur += c; }
+    }
+    fields.push(cur.trim());
+    var obj = {};
+    headers.forEach(function(h, i){
+      var v = (fields[i] || '').replace(/^"|"$/g, '').trim();
+      obj[h] = v;
+    });
+    return obj;
+  });
+}
+
+function mapRow(row) {
+  return {
+    nombre:      row['nombre'] || row['Nombre'] || '',
+    apellido:    row['apellido'] || row['Apellido'] || '',
+    udn:         row['udn'] || row['UDN'] || '',
+    division:    row['division'] || row['Division'] || row['División'] || '',
+    titulo:      row['titulo'] || row['Titulo'] || row['Título'] || '',
+    score:       parseFloat(row['score'] || row['Score'] || 0) || 0,
+    category:    row['category'] || row['Category'] || row['Categoria'] || '',
+    rank_global: parseInt(row['rank_global'] || 0) || 0,
+    rank_div:    parseInt(row['rank_div'] || 0) || 0,
+    rank_udn:    parseInt(row['rank_udn'] || 0) || 0,
+    rank_lider:  parseInt(row['rank_lider'] || 0) || 0,
+    is_lider:    row['is_lider'] === 'true' || row['is_lider'] === '1' || row['is_lider'] === 'True',
+  };
+}
+
+var RAW = [];
+const FALLBACK_const RAW=[{"nombre": "JENNIFER DANIELA", "apellido": "SALAZAR", "udn": "Chile", "division": "ARQUITECTURA Y MANTENIMIENTO", "titulo": "COORDINADOR ARQUITECTURA Y MANTENIMIENTO", "score": 110, "category": "Top", "rank_global": 1, "rank_div": 1, "rank_udn": 1, "rank_lider": 1, "is_lider": true}, {"nombre": "CAROLINA ANDREA", "apellido": "MALDONADO", "udn": "Chile", "division": "ADMINISTRACION Y FINANZAS", "titulo": "ASISTENTE COMERCIO EXTERIOR", "score": 110, "category": "Top", "rank_global": 2, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "ROSA LAURA", "apellido": "MORENO", "udn": "Chile", "division": "ADMINISTRACION Y FINANZAS", "titulo": "GERENTE ADMINISTRACIÓN Y FINANZAS", "score": 110, "category": "Top", "rank_global": 3, "rank_div": 1, "rank_udn": 1, "rank_lider": 2, "is_lider": true}, {"nombre": "ALEJANDRO ANTONIO", "apellido": "LOPEZ", "udn": "Chile", "division": "CONTROLLING AND BUSINESS ANALYTICS", "titulo": "COORDINADOR CONTROLLING Y BUSINESS ANALYTICS", "score": 110, "category": "Top", "rank_global": 4, "rank_div": 1, "rank_udn": 1, "rank_lider": 3, "is_lider": true}, {"nombre": "ROGER", "apellido": "ALEXANDER DOMINGUES PRACIDELLI", "udn": "Brasil", "division": "DIRECCION", "titulo": "ANALISTA CUSTOMER SERVICE", "score": 110, "category": "Top", "rank_global": 5, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "VALERIA", "apellido": "PUISSEGUR", "udn": "Casa Matriz", "division": "CAPITAL HUMANO", "titulo": "ANALISTA CULTURA SR", "score": 110, "category": "Top", "rank_global": 6, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "CLAITON MARCELINO", "apellido": "DOS SANTOS", "udn": "Brasil", "division": "DIRECCION", "titulo": "GROWTH & NEW BUSINESS DIRECTOR", "score": 110, "category": "Top", "rank_global": 7, "rank_div": 1, "rank_udn": 1, "rank_lider": 4, "is_lider": true}, {"nombre": "CAMILA", "apellido": "CARVAJAL", "udn": "Chile", "division": "BRAND MANAGEMENT", "titulo": "BRAND MANAGER", "score": 110, "category": "Top", "rank_global": 8, "rank_div": 1, "rank_udn": 1, "rank_lider": 5, "is_lider": true}, {"nombre": "FRANCESCA SHERRY", "apellido": "MIRANDA", "udn": "Peru", "division": "BRAND MANAGEMENT", "titulo": "CONTENT CREATOR & COMMUNITY MANAGER", "score": 110, "category": "Top", "rank_global": 9, "rank_div": 1, "rank_udn": 1, "rank_lider": 6, "is_lider": true}, {"nombre": "LORENA ALEJANDRA", "apellido": "QUEVEDO", "udn": "Peru", "division": "CAPITAL HUMANO", "titulo": "GERENTE CAPITAL HUMANO", "score": 110, "category": "Top", "rank_global": 10, "rank_div": 1, "rank_udn": 1, "rank_lider": 7, "is_lider": true}, {"nombre": "DULCE AIME", "apellido": "NAPOLES", "udn": "Mexico", "division": "CAPITAL HUMANO", "titulo": "ANALISTA NOMINA", "score": 110, "category": "Top", "rank_global": 11, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "CAMILA TRINIDAD", "apellido": "BUSSO", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "IT E-COMMERCE ANALYST", "score": 110, "category": "Top", "rank_global": 12, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "MARCOS", "apellido": "HOYOS", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "FRONT SYSTEMS LEAD", "score": 110, "category": "Top", "rank_global": 13, "rank_div": 1, "rank_udn": 1, "rank_lider": 8, "is_lider": true}, {"nombre": "JOSE MANUEL", "apellido": "DE OLANO", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "HR SYSTEMS LEAD", "score": 110, "category": "Top", "rank_global": 14, "rank_div": 1, "rank_udn": 1, "rank_lider": 9, "is_lider": true}, {"nombre": "FRANCISCA ISABEL", "apellido": "SAEZ", "udn": "Chile", "division": "BRAND MANAGEMENT", "titulo": "BRAND MANAGER", "score": 110, "category": "Top", "rank_global": 15, "rank_div": 1, "rank_udn": 1, "rank_lider": 10, "is_lider": true}, {"nombre": "CARLA ANTONELA", "apellido": "IACOVONE", "udn": "Casa Matriz", "division": "INNOVACION, CONOCIMIENTO Y TECNOLOGIA", "titulo": "CORE BUSINESS PROCESS SR ANALYST", "score": 110, "category": "Top", "rank_global": 16, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "JESSICA YOLANDA", "apellido": "UGAZ", "udn": "Peru", "division": "OPERACIONES RETAIL", "titulo": "ANALISTA RETAIL", "score": 110, "category": "Top", "rank_global": 17, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "PAULA", "apellido": "ALAM", "udn": "Casa Matriz", "division": "ISADORA", "titulo": "DISEÑADOR SR", "score": 110, "category": "Top", "rank_global": 18, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "SOFIA PAZ", "apellido": "LAMA", "udn": "Chile", "division": "BRAND MANAGEMENT", "titulo": "SOCIAL MEDIA CONTENT", "score": 110, "category": "Top", "rank_global": 19, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "SABRINA", "apellido": "DIAZ GRANADOS", "udn": "Argentina", "division": "BRAND MANAGEMENT", "titulo": "COUNTRY VM", "score": 110, "category": "Top", "rank_global": 20, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "MACARENA", "apellido": "CARROZZO", "udn": "Argentina", "division": "BRAND MANAGEMENT", "titulo": "COUNTRY VM", "score": 110, "category": "Top", "rank_global": 21, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "NICOLAS GABRIEL", "apellido": "CORTA", "udn": "Argentina", "division": "CAPITAL HUMANO", "titulo": "LIQUIDADOR SUELDOS PL", "score": 110, "category": "Top", "rank_global": 22, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "INES", "apellido": "GARCIA", "udn": "Argentina", "division": "CAPITAL HUMANO", "titulo": "ANALISTA COMPENSACIONES", "score": 110, "category": "Top", "rank_global": 23, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "MAGALI ALDANA", "apellido": "MARTINEZ", "udn": "Argentina", "division": "CAPITAL HUMANO", "titulo": "ANALISTA GESTIÓN DEL TALENTO PL", "score": 110, "category": "Top", "rank_global": 24, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "ANA MARIA", "apellido": "RUIZ", "udn": "Argentina", "division": "FINANZAS", "titulo": "ANALISTA PAGO PROVEEDORES", "score": 110, "category": "Top", "rank_global": 25, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "DAIANA", "apellido": "RADISIC", "udn": "Argentina", "division": "ADMINISTRACION", "titulo": "ANALISTA CONTABLE IMPOSITIVO", "score": 110, "category": "Top", "rank_global": 26, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "JACQUELINE GISELLE", "apellido": "GONZALEZ", "udn": "Argentina", "division": "BRAND MANAGEMENT", "titulo": "VISUAL MERCHANDISING LEAD", "score": 110, "category": "Top", "rank_global": 27, "rank_div": 1, "rank_udn": 1, "rank_lider": 11, "is_lider": true}, {"nombre": "CATERINA", "apellido": "GARGARELLA  MARTELLI ", "udn": "Argentina", "division": "BRAND MANAGEMENT", "titulo": "DISEÑADOR GRAFICO MULTIMEDIA", "score": 110, "category": "Top", "rank_global": 28, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "CAMILA", "apellido": "ALBORNOZ", "udn": "Argentina", "division": "BRAND MANAGEMENT", "titulo": "DISEÑADOR GRAFICO", "score": 110, "category": "Top", "rank_global": 29, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "MARIA PAZ", "apellido": "VIAÑA", "udn": "Argentina", "division": "CAPITAL HUMANO", "titulo": "ANALISTA TRAINING", "score": 110, "category": "Top", "rank_global": 30, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "AYELEN AILEN", "apellido": "ALGOZINO", "udn": "Argentina", "division": "FINANZAS", "titulo": "COORDINADOR FINANZAS", "score": 110, "category": "Top", "rank_global": 31, "rank_div": 1, "rank_udn": 1, "rank_lider": 12, "is_lider": true}, {"nombre": "NATALIA", "apellido": "ALDEA", "udn": "Casa Matriz", "division": "ISADORA", "titulo": "ARCHITECTURE DESIGN & VISUAL MERCHANDISING MANAGER", "score": 110, "category": "Top", "rank_global": 32, "rank_div": 1, "rank_udn": 1, "rank_lider": 13, "is_lider": true}, {"nombre": "ANGELA SOFIA", "apellido": "PINO", "udn": "Peru", "division": "BRAND MANAGEMENT", "titulo": "CONTENT CREATOR & COMMUNITY MANAGER", "score": 110, "category": "Top", "rank_global": 33, "rank_div": 1, "rank_udn": 1, "rank_lider": 14, "is_lider": true}, {"nombre": "MARIA PAZ", "apellido": "MUSTO LOPEZ", "udn": "Casa Matriz", "division": "INNOVACION, CONOCIMIENTO Y TECNOLOGIA", "titulo": "UX DESIGNER", "score": 110, "category": "Top", "rank_global": 34, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "AINELEN GISELA", "apellido": "POLONI", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "FUNCTIONAL ANALYST-FRONT", "score": 110, "category": "Top", "rank_global": 35, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "CESAR AUGUSTO", "apellido": "QUISPEALAYA", "udn": "Peru", "division": "ADMINISTRACION Y FINANZAS", "titulo": "GESTOR INVENTARIOS", "score": 100, "category": "Top", "rank_global": 36, "rank_div": 1, "rank_udn": 5, "rank_lider": 0, "is_lider": false}, {"nombre": "DAVID EDUARDO", "apellido": "POVIS", "udn": "Peru", "division": "ADMINISTRACION Y FINANZAS", "titulo": "GESTOR INVENTARIOS", "score": 100, "category": "Top", "rank_global": 37, "rank_div": 1, "rank_udn": 5, "rank_lider": 0, "is_lider": false}, {"nombre": "KEYLA ROCIO", "apellido": "CESPEDES", "udn": "Peru", "division": "BRAND MANAGEMENT", "titulo": "ANALISTA E-COMMERCE", "score": 100, "category": "Top", "rank_global": 38, "rank_div": 3, "rank_udn": 5, "rank_lider": 0, "is_lider": false}, {"nombre": "MARIELA", "apellido": "SUAREZ", "udn": "Peru", "division": "BRAND MANAGEMENT", "titulo": "COUNTRY VM", "score": 100, "category": "Top", "rank_global": 39, "rank_div": 3, "rank_udn": 5, "rank_lider": 0, "is_lider": false}, {"nombre": "MELANIE ANDREA", "apellido": "BELTRAN", "udn": "Peru", "division": "BRAND MANAGEMENT", "titulo": "COUNTRY VM JR", "score": 100, "category": "Top", "rank_global": 40, "rank_div": 3, "rank_udn": 5, "rank_lider": 0, "is_lider": false}, {"nombre": "RODRIGO IGNACIO", "apellido": "CASTRO", "udn": "Chile", "division": "SUPPLY CHAIN", "titulo": "GERENTE LOGISTICA", "score": 100, "category": "Top", "rank_global": 41, "rank_div": 1, "rank_udn": 8, "rank_lider": 15, "is_lider": true}, {"nombre": "EDI SMITH", "apellido": "SÁNCHEZ", "udn": "Peru", "division": "ADMINISTRACION Y FINANZAS", "titulo": "GESTOR INVENTARIOS", "score": 100, "category": "Top", "rank_global": 42, "rank_div": 1, "rank_udn": 5, "rank_lider": 0, "is_lider": false}, {"nombre": "BENGGI LUIS", "apellido": "LOAYZA", "udn": "Peru", "division": "ADMINISTRACION Y FINANZAS", "titulo": "GESTOR INVENTARIOS", "score": 100, "category": "Top", "rank_global": 43, "rank_div": 1, "rank_udn": 5, "rank_lider": 0, "is_lider": false}, {"nombre": "GUADALUPE BEATRIZ", "apellido": "OLIVARES", "udn": "Mexico", "division": "CAPITAL HUMANO", "titulo": "JEFE DE NOMINA Y COMPENSACIONES", "score": 100, "category": "Top", "rank_global": 44, "rank_div": 2, "rank_udn": 2, "rank_lider": 16, "is_lider": true}, {"nombre": "MARIA FERNANDA", "apellido": "ERAZO", "udn": "Mexico", "division": "CAPITAL HUMANO", "titulo": "ANALISTA ADMINISTRACION DE PERSONAL", "score": 100, "category": "Top", "rank_global": 45, "rank_div": 2, "rank_udn": 2, "rank_lider": 0, "is_lider": false}, {"nombre": "EMELIA", "apellido": "HERNANDEZ", "udn": "Mexico", "division": "CAPITAL HUMANO", "titulo": "COORDINADOR ADMINISTRACION DE PERSONAL", "score": 100, "category": "Top", "rank_global": 46, "rank_div": 2, "rank_udn": 2, "rank_lider": 17, "is_lider": true}, {"nombre": "NAIR", "apellido": "MANRIQUE", "udn": "Mexico", "division": "CAPITAL HUMANO", "titulo": "COORDINADOR NOMINA", "score": 100, "category": "Top", "rank_global": 47, "rank_div": 2, "rank_udn": 2, "rank_lider": 18, "is_lider": true}, {"nombre": "ALEJANDRA", "apellido": "GUERRERO", "udn": "Mexico", "division": "OPERACIONES RETAIL", "titulo": "VISUAL & COMMERCIAL REGIONAL", "score": 100, "category": "Top", "rank_global": 48, "rank_div": 1, "rank_udn": 2, "rank_lider": 0, "is_lider": false}, {"nombre": "LOURDES GABRIELA", "apellido": "DIAZ", "udn": "Mexico", "division": "CAPITAL HUMANO", "titulo": "AUXILIAR CAPITAL HUMANO", "score": 100, "category": "Top", "rank_global": 49, "rank_div": 2, "rank_udn": 2, "rank_lider": 0, "is_lider": false}, {"nombre": "DANIELA ANDREA", "apellido": "CHACON", "udn": "Chile", "division": "BRAND MANAGEMENT", "titulo": "ANALISTA TRADE MARKETING", "score": 100, "category": "Top", "rank_global": 50, "rank_div": 4, "rank_udn": 8, "rank_lider": 0, "is_lider": false}, {"nombre": "BERTA", "apellido": "FUENTES", "udn": "Chile", "division": "ADMINISTRACION Y FINANZAS", "titulo": "CONTADOR GENERAL", "score": 100, "category": "Top", "rank_global": 51, "rank_div": 3, "rank_udn": 8, "rank_lider": 0, "is_lider": false}, {"nombre": "MARLENE", "apellido": "AGUIRRE", "udn": "Chile", "division": "ADMINISTRACION Y FINANZAS", "titulo": "TESORERA", "score": 100, "category": "Top", "rank_global": 52, "rank_div": 3, "rank_udn": 8, "rank_lider": 0, "is_lider": false}, {"nombre": "MILAGROS SOFIA", "apellido": "CELADA", "udn": "Casa Matriz", "division": "ISADORA", "titulo": "COMPRADOR JR", "score": 100, "category": "Top", "rank_global": 53, "rank_div": 3, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "JESSICA SOLEDAD", "apellido": "JARA", "udn": "Chile", "division": "ADMINISTRACION Y FINANZAS", "titulo": "ANALISTA CONTABLE SR", "score": 100, "category": "Top", "rank_global": 54, "rank_div": 3, "rank_udn": 8, "rank_lider": 0, "is_lider": false}, {"nombre": "RAUL ALBERTO", "apellido": "ROJAS", "udn": "Chile", "division": "ADMINISTRACION Y FINANZAS", "titulo": "JEFE SEGURIDAD PATRIMONIAL E  INVENTARIO", "score": 100, "category": "Top", "rank_global": 55, "rank_div": 3, "rank_udn": 8, "rank_lider": 19, "is_lider": true}, {"nombre": "JEAN", "apellido": "PEREZ", "udn": "Chile", "division": "ADMINISTRACION Y FINANZAS", "titulo": "ANALISTA CONTABLE JR", "score": 100, "category": "Top", "rank_global": 56, "rank_div": 3, "rank_udn": 8, "rank_lider": 0, "is_lider": false}, {"nombre": "MARIANA", "apellido": "HERRERA", "udn": "Chile", "division": "ADMINISTRACION Y FINANZAS", "titulo": "ASISTENTE ADMINISTRATIVO", "score": 100, "category": "Top", "rank_global": 57, "rank_div": 3, "rank_udn": 8, "rank_lider": 0, "is_lider": false}, {"nombre": "CLAUDIA ALEJANDRA", "apellido": "MARTINEZ", "udn": "Chile", "division": "OPERACIONES RETAIL", "titulo": "REGIONAL EXPERIENCE MANAGER", "score": 100, "category": "Top", "rank_global": 58, "rank_div": 1, "rank_udn": 8, "rank_lider": 20, "is_lider": true}, {"nombre": "ARIADNA ELENA", "apellido": "CARACHEO", "udn": "Mexico", "division": "BRAND MANAGEMENT", "titulo": "COUNTRY VM", "score": 100, "category": "Top", "rank_global": 59, "rank_div": 1, "rank_udn": 2, "rank_lider": 0, "is_lider": false}, {"nombre": "SOL", "apellido": "LOZANO", "udn": "Casa Matriz", "division": "TODOMODA", "titulo": "DISEÑADOR GRAFICO PL", "score": 100, "category": "Top", "rank_global": 60, "rank_div": 1, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "MONICA", "apellido": "GARCIA", "udn": "Mexico", "division": "BRAND MANAGEMENT", "titulo": "ANALISTA TRADE MARKETING", "score": 100, "category": "Top", "rank_global": 61, "rank_div": 1, "rank_udn": 2, "rank_lider": 0, "is_lider": false}, {"nombre": "IGNACIO ARIEL", "apellido": "GIACOPUZZI", "udn": "Argentina", "division": "SUPPLY CHAIN", "titulo": "TEAM LEADER PROCESOS Y MEJORA CONTINUA", "score": 100, "category": "Top", "rank_global": 62, "rank_div": 1, "rank_udn": 13, "rank_lider": 21, "is_lider": true}, {"nombre": "LUCIA", "apellido": "ZITA MARTÍN ALVAREZ", "udn": "España", "division": "ISADORA", "titulo": "DISEÑADOR SR", "score": 100, "category": "Top", "rank_global": 63, "rank_div": 1, "rank_udn": 1, "rank_lider": 0, "is_lider": false}, {"nombre": "JESUS REINALDO", "apellido": "LINARES GUERRERO", "udn": "Casa Matriz", "division": "TODOMODA", "titulo": "PLANIFICADOR SR", "score": 100, "category": "Top", "rank_global": 64, "rank_div": 1, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "JULIA MILAGROS", "apellido": "AISA", "udn": "Peru", "division": "ADMINISTRACION Y FINANZAS", "titulo": "ASISTENTE SEGURIDAD PATRIMONIAL", "score": 100, "category": "Top", "rank_global": 65, "rank_div": 1, "rank_udn": 5, "rank_lider": 0, "is_lider": false}, {"nombre": "MARIA SANDRA", "apellido": "HERRERA", "udn": "Mexico", "division": "CAPITAL HUMANO", "titulo": "ANALISTA NOMINA", "score": 100, "category": "Top", "rank_global": 66, "rank_div": 2, "rank_udn": 2, "rank_lider": 0, "is_lider": false}, {"nombre": "RUTH NOELIA", "apellido": "ENRIQUE", "udn": "Casa Matriz", "division": "CAPITAL HUMANO", "titulo": "GLOBAL COMMUNICATION LEAD", "score": 100, "category": "Top", "rank_global": 67, "rank_div": 2, "rank_udn": 10, "rank_lider": 22, "is_lider": true}, {"nombre": "ESTEFANIA LUCILA", "apellido": "ALFIERI", "udn": "Casa Matriz", "division": "CAPITAL HUMANO", "titulo": "ANALISTA ATRACCION DE TALENTO PL", "score": 100, "category": "Top", "rank_global": 68, "rank_div": 2, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "SOFIA", "apellido": "RUIZ", "udn": "Casa Matriz", "division": "CAPITAL HUMANO", "titulo": "ANALISTA ATRACCION DE TALENTO SR", "score": 100, "category": "Top", "rank_global": 69, "rank_div": 2, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "MONICA ALEXANDRA", "apellido": "RIVEROS SABOGAL", "udn": "Casa Matriz", "division": "DIRECCION", "titulo": "GROWTH & NEW BUSINESS PROJECT LEADER", "score": 100, "category": "Top", "rank_global": 70, "rank_div": 1, "rank_udn": 10, "rank_lider": 23, "is_lider": true}, {"nombre": "GRACIELA", "apellido": "MARTINEZ-DECUIR", "udn": "Mexico", "division": "DIRECCION", "titulo": "JEFE LOCACIONES", "score": 100, "category": "Top", "rank_global": 71, "rank_div": 1, "rank_udn": 2, "rank_lider": 24, "is_lider": true}, {"nombre": "JOSUÉ VIDAL", "apellido": "RAMIREZ", "udn": "Peru", "division": "ADMINISTRACION Y FINANZAS", "titulo": "GESTOR INVENTARIOS", "score": 100, "category": "Top", "rank_global": 72, "rank_div": 1, "rank_udn": 5, "rank_lider": 0, "is_lider": false}, {"nombre": "JUAN CARLOS", "apellido": "RIVERA", "udn": "Peru", "division": "ADMINISTRACION Y FINANZAS", "titulo": "ASISTENTE SEGURIDAD PATRIMONIAL", "score": 100, "category": "Top", "rank_global": 73, "rank_div": 1, "rank_udn": 5, "rank_lider": 0, "is_lider": false}, {"nombre": "ANDREA", "apellido": "VELASQUEZ", "udn": "Peru", "division": "CAPITAL HUMANO", "titulo": "ANALISTA CAPACITACION Y DESARROLLO", "score": 100, "category": "Top", "rank_global": 74, "rank_div": 2, "rank_udn": 5, "rank_lider": 0, "is_lider": false}, {"nombre": "NATALIA BELEN", "apellido": "MAMANI", "udn": "Casa Matriz", "division": "INNOVACION, CONOCIMIENTO Y TECNOLOGIA", "titulo": "BUSINESS INTELLIGENCE JR ANALYST", "score": 100, "category": "Top", "rank_global": 75, "rank_div": 3, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "YORMAN MANUEL", "apellido": "CCALLATA", "udn": "Peru", "division": "ADMINISTRACION Y FINANZAS", "titulo": "GESTOR INVENTARIOS", "score": 100, "category": "Top", "rank_global": 76, "rank_div": 1, "rank_udn": 5, "rank_lider": 0, "is_lider": false}, {"nombre": "MELISSA LILIAN", "apellido": "RODRIGUEZ", "udn": "Peru", "division": "ADMINISTRACION Y FINANZAS", "titulo": "ANALISTA SEGURIDAD PATRIMONIAL", "score": 100, "category": "Top", "rank_global": 77, "rank_div": 1, "rank_udn": 5, "rank_lider": 0, "is_lider": false}, {"nombre": "LALEYSKA NATALIA", "apellido": "FARCIC", "udn": "Peru", "division": "CAPITAL HUMANO", "titulo": "ANALISTA ENTRENAMIENTO Y DESARROLLO", "score": 100, "category": "Top", "rank_global": 78, "rank_div": 2, "rank_udn": 5, "rank_lider": 0, "is_lider": false}, {"nombre": "ROSELYN", "apellido": "CAM", "udn": "Peru", "division": "OPERACIONES RETAIL", "titulo": "DISTRICT EXPERIENCE MANAGER", "score": 100, "category": "Top", "rank_global": 79, "rank_div": 2, "rank_udn": 5, "rank_lider": 25, "is_lider": true}, {"nombre": "ALEX ROGER", "apellido": "TEJADA", "udn": "Peru", "division": "OPERACIONES RETAIL", "titulo": "DISTRICT EXPERIENCE MANAGER", "score": 100, "category": "Top", "rank_global": 80, "rank_div": 2, "rank_udn": 5, "rank_lider": 26, "is_lider": true}, {"nombre": "WILLIAM CLOVER", "apellido": "MORALES", "udn": "Peru", "division": "ADMINISTRACION Y FINANZAS", "titulo": "GESTOR INVENTARIOS", "score": 100, "category": "Top", "rank_global": 81, "rank_div": 1, "rank_udn": 5, "rank_lider": 0, "is_lider": false}, {"nombre": "SOFIA NERINA", "apellido": "FIORI", "udn": "Casa Matriz", "division": "ISADORA", "titulo": "COORDINADOR VISUAL MERCHANDISING", "score": 100, "category": "Top", "rank_global": 82, "rank_div": 3, "rank_udn": 10, "rank_lider": 27, "is_lider": true}, {"nombre": "MARIA LUZ", "apellido": "BARLA", "udn": "Casa Matriz", "division": "ISADORA", "titulo": "COORDINADOR VISUAL MERCHANDISING", "score": 100, "category": "Top", "rank_global": 83, "rank_div": 3, "rank_udn": 10, "rank_lider": 28, "is_lider": true}, {"nombre": "NICOLAS", "apellido": "ECHEVERRI MONTES", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "JEFE INFRAESTRUCTURA IT", "score": 100, "category": "Top", "rank_global": 84, "rank_div": 5, "rank_udn": 10, "rank_lider": 29, "is_lider": true}, {"nombre": "JESSICA DAIANA", "apellido": "FONTEÑEZ", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "SYSTEMS ANALYST", "score": 100, "category": "Top", "rank_global": 85, "rank_div": 5, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "JERÓNIMO ALFREDO", "apellido": "URQUIZA", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "TECHNOLOGY BUSINESS PARTNER", "score": 100, "category": "Top", "rank_global": 86, "rank_div": 5, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "JOSEFINA ANGELICA", "apellido": "RIVAS", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "TECHNOLOGY BUSINESS PARTNER", "score": 100, "category": "Top", "rank_global": 87, "rank_div": 5, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "DIANA", "apellido": "BELEN CA", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "ANALISTA GESTION DE TECNOLOGIA SR", "score": 100, "category": "Top", "rank_global": 88, "rank_div": 5, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "MELINA", "apellido": "FAJERSTAIN", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "TECHNOLOGY BUSINESS PARTNER", "score": 100, "category": "Top", "rank_global": 89, "rank_div": 5, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "BERNARDITA CATALINA", "apellido": "SUSBIELLES ARANDA", "udn": "Casa Matriz", "division": "ISADORA", "titulo": "DISEÑADOR PL", "score": 100, "category": "Top", "rank_global": 90, "rank_div": 3, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "LUCIANA", "apellido": "SCARSI", "udn": "España", "division": "ISADORA", "titulo": "DESIGN MANAGER", "score": 100, "category": "Top", "rank_global": 91, "rank_div": 1, "rank_udn": 1, "rank_lider": 30, "is_lider": true}, {"nombre": "DANIELA", "apellido": "BUONARCORSO", "udn": "Casa Matriz", "division": "ISADORA", "titulo": "CREATIVE STORE DESIGNER", "score": 100, "category": "Top", "rank_global": 92, "rank_div": 3, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "MARCIA SELENE", "apellido": "SEGUI", "udn": "Casa Matriz", "division": "ISADORA", "titulo": "COORDINADOR VISUAL MERCHANDISING", "score": 100, "category": "Top", "rank_global": 93, "rank_div": 3, "rank_udn": 10, "rank_lider": 31, "is_lider": true}, {"nombre": "SILVANA PATRICIA", "apellido": "ZARATTINI", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "FUNCTIONAL ANALYST SR - SAP", "score": 100, "category": "Top", "rank_global": 94, "rank_div": 5, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "CARLOS FERNANDO DARIO", "apellido": "OJEDA", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "ADMINISTRATIVE SYSTEM LEAD", "score": 100, "category": "Top", "rank_global": 95, "rank_div": 5, "rank_udn": 10, "rank_lider": 32, "is_lider": true}, {"nombre": "GONZALO JAVIER", "apellido": "MIRANDA", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "SERVICE DESK ANALYST", "score": 100, "category": "Top", "rank_global": 96, "rank_div": 5, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "MICAELA BELEN", "apellido": "EGIDO", "udn": "Argentina", "division": "ADMINISTRACION", "titulo": "ANALISTA CONTABILIDAD E IMPUESTOS", "score": 100, "category": "Top", "rank_global": 97, "rank_div": 2, "rank_udn": 13, "rank_lider": 0, "is_lider": false}, {"nombre": "RUBEN ALEJANDRO", "apellido": "MUÑOZ", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "SERVICE DESK ANALYST", "score": 100, "category": "Top", "rank_global": 98, "rank_div": 5, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "ALEJANDRO", "apellido": "BAGNAT", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "SERVICE DESK ANALYST", "score": 100, "category": "Top", "rank_global": 99, "rank_div": 5, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "ANTUANE MARISOL", "apellido": "CENTENO", "udn": "Peru", "division": "CAPITAL HUMANO", "titulo": "ASISTENTE ADMINISTRACION DE PERSONAL", "score": 100, "category": "Top", "rank_global": 100, "rank_div": 2, "rank_udn": 5, "rank_lider": 0, "is_lider": false}, {"nombre": "DANIEL NORBERTO", "apellido": "OCANTO", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "TECHNOLOGY INFRASTRUCTURE ANALYST", "score": 100, "category": "Top", "rank_global": 101, "rank_div": 5, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "CELESTE BELEN", "apellido": "VILLALBA", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "SERVICE DESK ANALYST", "score": 100, "category": "Top", "rank_global": 102, "rank_div": 5, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "GUSTAVO", "apellido": "URQUIZA", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "TECHNOLOGY INFRASTRUCTURE ANALYST", "score": 100, "category": "Top", "rank_global": 103, "rank_div": 5, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "RAMIRO", "apellido": "PELOSI", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "TECHNOLOGY INFRASTRUCTURE ANALYST", "score": 100, "category": "Top", "rank_global": 104, "rank_div": 5, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "MARTIN IGNACIO", "apellido": "MANCO", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "E-COMMERCE TECHNICAL LEAD", "score": 100, "category": "Top", "rank_global": 105, "rank_div": 5, "rank_udn": 10, "rank_lider": 33, "is_lider": true}, {"nombre": "LUCAS GABRIEL", "apellido": "BARCELLINI", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "SERVICE DESK ANALYST", "score": 100, "category": "Top", "rank_global": 106, "rank_div": 5, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "CLAUDIO MANUEL", "apellido": "ALE ESTIGARRIBIA", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "SERVICE DESK ANALYST", "score": 100, "category": "Top", "rank_global": 107, "rank_div": 5, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "VICTOR ROLANDO", "apellido": "SANCHEZ GUERRA", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "SERVICE DESK ANALYST", "score": 100, "category": "Top", "rank_global": 108, "rank_div": 5, "rank_udn": 10, "rank_lider": 0, "is_lider": false}, {"nombre": "FRANCISCO AGUSTIN", "apellido": "FILOSI", "udn": "Casa Matriz", "division": "INNOVACION, CONOCIMIENTO Y TECNOLOGIA", "titulo": "MACHINE LEARNING & AI LAB LEAD", "score": 100, "category": "Top", "rank_global": 109, "rank_div": 3, "rank_udn": 10, "rank_lider": 34, "is_lider": true}, {"nombre": "KENYI CESAR JESUS", "apellido": "URIBE", "udn": "Peru", "division": "OPERACIONES RETAIL", "titulo": "DISTRICT EXPERIENCE MANAGER", "score": 100, "category": "Top", "rank_global": 110, "rank_div": 2, "rank_udn": 5, "rank_lider": 35, "is_lider": true}, {"nombre": "KATHERINE MILAGROS", "apellido": "LOPEZ", "udn": "Peru", "division": "OPERACIONES RETAIL", "titulo": "DISTRICT EXPERIENCE MANAGER", "score": 100, "category": "Top", "rank_global": 111, "rank_div": 2, "rank_udn": 5, "rank_lider": 36, "is_lider": true}, {"nombre": "ANDREA", "apellido": "ZARATE", "udn": "Peru", "division": "CAPITAL HUMANO", "titulo": "ANALISTA GESTION DE TALENTO", "score": 100, "category": "Top", "rank_global": 112, "rank_div": 2, "rank_udn": 5, "rank_lider": 0, "is_lider": false}, {"nombre": "ROBERT PAUL", "apellido": "PALMA", "udn": "Peru", "division": "OPERACIONES RETAIL", "titulo": "VISUAL & COMMERCIAL REGIONAL", "score": 100, "category": "Top", "rank_global": 113, "rank_div": 2, "rank_udn": 5, "rank_lider": 0, "is_lider": false}, {"nombre": "KENNY JOEL", "apellido": "RUEDA", "udn": "Peru", "division": "OPERACIONES RETAIL", "titulo": "DISTRICT EXPERIENCE MANAGER", "score": 100, "category": "Top", "rank_global": 114, "rank_div": 2, "rank_udn": 5, "rank_lider": 37, "is_lider": true}, {"nombre": "VIVIANA MICAELA", "apellido": "LOPEZ", "udn": "Argentina", "division": "DIGITAL CHANNEL", "titulo": "PERSONAL SHOPPER", "score": 100, "category": "Top", "rank_global": 115, "rank_div": 1, "rank_udn": 13, "rank_lider": 0, "is_lider": false}, {"nombre": "NOELIA MARIEL", "apellido": "SOLIZ", "udn": "Argentina", "division": "ADMINISTRACION", "titulo": "ANALISTA IMPUESTOS", "score": 100, "category": "Top", "rank_global": 116, "rank_div": 2, "rank_udn": 13, "rank_lider": 0, "is_lider": false}, {"nombre": "NATALIA", "apellido": "DENUBLE", "udn": "Argentina", "division": "CAPITAL HUMANO", "titulo": "ANALISTA RELACIONES LABORALES", "score": 100, "category": "Top", "rank_global": 117, "rank_div": 5, "rank_udn": 13, "rank_lider": 0, "is_lider": false}, {"nombre": "NICOLE", "apellido": "DIAZ", "udn": "Chile", "division": "BRAND MANAGEMENT", "titulo": "COUNTRY VISUAL MERCHANDISING", "score": 100, "category": "Top", "rank_global": 118, "rank_div": 4, "rank_udn": 8, "rank_lider": 0, "is_lider": false}, {"nombre": "ANTONELLA ANDREA", "apellido": "GAMBARTE", "udn": "Argentina", "division": "ADMINISTRACION", "titulo": "ANALISTA COMERCIO EXTERIOR SR", "score": 100, "category": "Top", "rank_global": 119, "rank_div": 2, "rank_udn": 13, "rank_lider": 0, "is_lider": false}, {"nombre": "FLORENCIA GUADALUPE YAMILA", "apellido": "MONTENEGRO", "udn": "Argentina", "division": "ADMINISTRACION", "titulo": "ANALISTA COMERCIO EXTERIOR", "score": 100, "category": "Top", "rank_global": 120, "rank_div": 2, "rank_udn": 13, "rank_lider": 0, "is_lider": false}, {"nombre": "MARIANA CECILIA", "apellido": "MENENDEZ CONTE", "udn": "Argentina", "division": "ADMINISTRACION", "titulo": "ANALISTA ADMINISTRACION LOCALES", "score": 100, "category": "Top", "rank_global": 121, "rank_div": 2, "rank_udn": 13, "rank_lider": 0, "is_lider": false}, {"nombre": "ERIK", "apellido": "OVILLA", "udn": "Mexico", "division": "FINANZAS Y SERVICIOS", "titulo": "DIRECTOR ADMINISTRACION Y FINANZAS", "score": 100, "category": "Top", "rank_global": 122, "rank_div": 1, "rank_udn": 2, "rank_lider": 38, "is_lider": true}, {"nombre": "YURITZA ADRIANA", "apellido": "GONZALEZ", "udn": "Mexico", "division": "BRAND MANAGEMENT", "titulo": "COUNTRY VM", "score": 100, "category": "Top", "rank_global": 123, "rank_div": 1, "rank_udn": 2, "rank_lider": 0, "is_lider": false}, {"nombre": "YESUA IVAN", "apellido": "MACIAS", "udn": "Mexico", "division": "BRAND MANAGEMENT", "titulo": "ANALISTA TRADE MARKETING", "score": 100, "category": "Top", "rank_global": 124, "rank_div": 1, "rank_udn": 2, "rank_lider": 0, "is_lider": false}, {"nombre": "JOSE ABRAHAM", "apellido": "MONDRAGON", "udn": "Mexico", "division": "SUPPLY CHAIN", "titulo": "DIRECTOR LOGISTICA MX", "score": 100, "category": "Top", "rank_global": 125, "rank_div": 1, "rank_udn": 2, "rank_lider": 39, "is_lider": true}, {"nombre": "DELFINA", "apellido": "TABALLI", "udn": "Argentina", "division": "CAPITAL HUMANO", "titulo": "ANALISTA CAPITAL HUMANO RETAIL", "score": 100, "category": "Top", "rank_global": 126, "rank_div": 5, "rank_udn": 13, "rank_lider": 0, "is_lider": false}, {"nombre": "MICAELA ABRIL", "apellido": "MARTINEZ", "udn": "Argentina", "division": "CAPITAL HUMANO", "titulo": "ANALISTA NOMINA Y ADMINISTRACION", "score": 100, "category": "Top", "rank_global": 127, "rank_div": 5, "rank_udn": 13, "rank_lider": 0, "is_lider": false}, {"nombre": "MICHELLE DOMINIQUE", "apellido": "MEANA", "udn": "Argentina", "division": "CAPITAL HUMANO", "titulo": "ANALISTA CAPITAL HUMANO RETAIL", "score": 100, "category": "Top", "rank_global": 128, "rank_div": 5, "rank_udn": 13, "rank_lider": 0, "is_lider": false}, {"nombre": "ANA PAULA", "apellido": "CUCAGNA", "udn": "Mexico", "division": "BRAND MANAGEMENT", "titulo": "BRAND MANAGER", "score": 100, "category": "Top", "rank_global": 129, "rank_div": 1, "rank_udn": 2, "rank_lider": 40, "is_lider": true}, {"nombre": "EULISES", "apellido": "RODRIGUEZ", "udn": "Mexico", "division": "CAPITAL HUMANO", "titulo": "HRBP LOGISTICA", "score": 90, "category": "Middle High", "rank_global": 130, "rank_div": 8, "rank_udn": 17, "rank_lider": 0, "is_lider": false}, {"nombre": "MARIA VICTORIA", "apellido": "LAGABLE", "udn": "Argentina", "division": "DIGITAL CHANNEL", "titulo": "ANALISTA DIGITAL SALES", "score": 90, "category": "Middle High", "rank_global": 131, "rank_div": 2, "rank_udn": 24, "rank_lider": 0, "is_lider": false}, {"nombre": "MARIANA", "apellido": "KALAMAR", "udn": "Casa Matriz", "division": "ISADORA", "titulo": "ANALISTA FABRICACION SR", "score": 90, "category": "Middle High", "rank_global": 132, "rank_div": 9, "rank_udn": 43, "rank_lider": 0, "is_lider": false}, {"nombre": "LAURA CECILIA", "apellido": "LINALDELLI", "udn": "Casa Matriz", "division": "INNOVACION, CONOCIMIENTO Y TECNOLOGIA", "titulo": "CRM & OMNICHANNEL COORDINATOR", "score": 90, "category": "Middle High", "rank_global": 133, "rank_div": 5, "rank_udn": 43, "rank_lider": 0, "is_lider": false}, {"nombre": "XIOMARA MARGARITA", "apellido": "HERNANDEZ", "udn": "Peru", "division": "SUPPLY CHAIN", "titulo": "SUPERVISOR REPOSICION Y PICKING", "score": 90, "category": "Middle High", "rank_global": 134, "rank_div": 1, "rank_udn": 28, "rank_lider": 41, "is_lider": true}, {"nombre": "JUAN DIEGO", "apellido": "HIDALGO", "udn": "Peru", "division": "SUPPLY CHAIN", "titulo": "SUPERVISOR DE CONTROL DE STOCK", "score": 90, "category": "Middle High", "rank_global": 135, "rank_div": 1, "rank_udn": 28, "rank_lider": 42, "is_lider": true}, {"nombre": "DANIELA VICTORIA", "apellido": "IBASCA", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "SERVICE DESK ANALYST", "score": 90, "category": "Middle High", "rank_global": 136, "rank_div": 24, "rank_udn": 43, "rank_lider": 0, "is_lider": false}, {"nombre": "GABRIELA YANIRA", "apellido": "ROMERO", "udn": "Peru", "division": "CAPITAL HUMANO", "titulo": "ASISTENTE GESTION DEL TALENTO", "score": 90, "category": "Middle High", "rank_global": 137, "rank_div": 6, "rank_udn": 28, "rank_lider": 0, "is_lider": false}, {"nombre": "ARIATNA ANHAI", "apellido": "PASTRANA", "udn": "Mexico", "division": "CAPITAL HUMANO", "titulo": "ANALISTA JURIDICO LABORAL", "score": 90, "category": "Middle High", "rank_global": 138, "rank_div": 8, "rank_udn": 17, "rank_lider": 0, "is_lider": false}, {"nombre": "JOSE", "apellido": "LEON", "udn": "Mexico", "division": "FINANZAS Y SERVICIOS", "titulo": "ANALISTA HELP DESK", "score": 90, "category": "Middle High", "rank_global": 139, "rank_div": 2, "rank_udn": 17, "rank_lider": 0, "is_lider": false}, {"nombre": "LUIS ENRIQUE", "apellido": "ZAMORA", "udn": "Mexico", "division": "FINANZAS Y SERVICIOS", "titulo": "ANALISTA HELP DESK", "score": 90, "category": "Middle High", "rank_global": 140, "rank_div": 2, "rank_udn": 17, "rank_lider": 0, "is_lider": false}, {"nombre": "JOSE ANTONIO", "apellido": "MORENO", "udn": "Mexico", "division": "CAPITAL HUMANO", "titulo": "ANALISTA CAPACITACION JR", "score": 90, "category": "Middle High", "rank_global": 141, "rank_div": 8, "rank_udn": 17, "rank_lider": 0, "is_lider": false}, {"nombre": "DIANA LAURA", "apellido": "PEREZ", "udn": "Mexico", "division": "CAPITAL HUMANO", "titulo": "ANALISTA RECLUTAMIENTO", "score": 90, "category": "Middle High", "rank_global": 142, "rank_div": 8, "rank_udn": 17, "rank_lider": 0, "is_lider": false}, {"nombre": "ARIADNA JAQUELINE", "apellido": "GARCIA ", "udn": "Mexico", "division": "CAPITAL HUMANO", "titulo": "ANALISTA RECLUTAMIENTO", "score": 90, "category": "Middle High", "rank_global": 143, "rank_div": 8, "rank_udn": 17, "rank_lider": 0, "is_lider": false}, {"nombre": "CECILIA", "apellido": "AGUADO", "udn": "Chile", "division": "CAPITAL HUMANO", "titulo": "ANALISTA COMUNICACIONES Y DESARROLLO", "score": 90, "category": "Middle High", "rank_global": 144, "rank_div": 1, "rank_udn": 18, "rank_lider": 0, "is_lider": false}, {"nombre": "CARMEN JACKELINE", "apellido": "MONTENEGRO", "udn": "Peru", "division": "OPERACIONES RETAIL", "titulo": "DISTRICT EXPERIENCE MANAGER", "score": 90, "category": "Middle High", "rank_global": 145, "rank_div": 8, "rank_udn": 28, "rank_lider": 43, "is_lider": true}, {"nombre": "ABIGAIL", "apellido": "GODINEZ", "udn": "Mexico", "division": "FINANZAS Y SERVICIOS", "titulo": "ANALISTA HELP DESK", "score": 90, "category": "Middle High", "rank_global": 146, "rank_div": 2, "rank_udn": 17, "rank_lider": 0, "is_lider": false}, {"nombre": "GLENNY DANIELA", "apellido": "ORELLANA", "udn": "Chile", "division": "CAPITAL HUMANO", "titulo": "HRBP", "score": 90, "category": "Middle High", "rank_global": 147, "rank_div": 1, "rank_udn": 18, "rank_lider": 0, "is_lider": false}, {"nombre": "VERONICA BELEN", "apellido": "DI RICO", "udn": "Argentina", "division": "ADMINISTRACION", "titulo": "ADMINISTRATIVO BANCOS", "score": 90, "category": "Middle High", "rank_global": 148, "rank_div": 7, "rank_udn": 24, "rank_lider": 0, "is_lider": false}, {"nombre": "CANDELA", "apellido": "CACERES", "udn": "Argentina", "division": "DIGITAL CHANNEL", "titulo": "PERSONAL SHOPPER", "score": 90, "category": "Middle High", "rank_global": 149, "rank_div": 2, "rank_udn": 24, "rank_lider": 0, "is_lider": false}, {"nombre": "DEBORA SILVANA", "apellido": "ERRAMUSPE", "udn": "Argentina", "division": "BRAND MANAGEMENT", "titulo": "ANALISTA TRADE & VISUAL MERCHANDISING", "score": 90, "category": "Middle High", "rank_global": 150, "rank_div": 6, "rank_udn": 24, "rank_lider": 0, "is_lider": false}, {"nombre": "ABRIL", "apellido": "CURUBETO TIBURZI", "udn": "Casa Matriz", "division": "ISADORA", "titulo": "DISEÑADOR JR", "score": 90, "category": "Middle High", "rank_global": 151, "rank_div": 9, "rank_udn": 43, "rank_lider": 0, "is_lider": false}, {"nombre": "IARA BERENICE", "apellido": "FABBRO", "udn": "Argentina", "division": "ADMINISTRACION", "titulo": "ANALISTA DISEÑO Y DESARROLLO DE PRODUCTO PL", "score": 90, "category": "Middle High", "rank_global": 152, "rank_div": 7, "rank_udn": 24, "rank_lider": 0, "is_lider": false}, {"nombre": "ANA JULIA", "apellido": "MUJICA ZUNIAGA", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "SERVICE DESK ANALYST", "score": 90, "category": "Middle High", "rank_global": 153, "rank_div": 24, "rank_udn": 43, "rank_lider": 0, "is_lider": false}, {"nombre": "CANDELARIA", "apellido": "MAZZEI", "udn": "Casa Matriz", "division": "INNOVACION, CONOCIMIENTO Y TECNOLOGIA", "titulo": "E-MAIL MARKETING ANALYST", "score": 90, "category": "Middle High", "rank_global": 154, "rank_div": 5, "rank_udn": 43, "rank_lider": 0, "is_lider": false}, {"nombre": "MARISOL", "apellido": "YAPUCHURA", "udn": "Peru", "division": "ADMINISTRACION Y FINANZAS", "titulo": "ANALISTA COMERCIO EXTERIOR", "score": 90, "category": "Middle High", "rank_global": 155, "rank_div": 11, "rank_udn": 28, "rank_lider": 0, "is_lider": false}, {"nombre": "ADELA", "apellido": "PEREZ", "udn": "Peru", "division": "CAPITAL HUMANO", "titulo": "ASISTENTE DE COMUNICACIÓN INTERNA", "score": 90, "category": "Middle High", "rank_global": 156, "rank_div": 6, "rank_udn": 28, "rank_lider": 0, "is_lider": false}, {"nombre": "DESIREE", "apellido": "MOREYRA", "udn": "Casa Matriz", "division": "INNOVACION, CONOCIMIENTO Y TECNOLOGIA", "titulo": "LOYALTY JR ANAYLIST", "score": 90, "category": "Middle High", "rank_global": 157, "rank_div": 5, "rank_udn": 43, "rank_lider": 0, "is_lider": false}, {"nombre": "ALEJO", "apellido": "CABRERA", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "SERVICE DESK ANALYST", "score": 90, "category": "Middle High", "rank_global": 158, "rank_div": 24, "rank_udn": 43, "rank_lider": 0, "is_lider": false}, {"nombre": "ROMINA SILVINA", "apellido": "MEDINA", "udn": "Casa Matriz", "division": "INNOVACION, CONOCIMIENTO Y TECNOLOGIA", "titulo": "BUSINESS PROCESS OPTIMIZATION ANALYST", "score": 90, "category": "Middle High", "rank_global": 159, "rank_div": 5, "rank_udn": 43, "rank_lider": 0, "is_lider": false}, {"nombre": "RUTHY DALILA", "apellido": "RAMOS", "udn": "Peru", "division": "SUPPLY CHAIN", "titulo": "SUPERVISOR SENIOR LOGISTICA", "score": 90, "category": "Middle High", "rank_global": 160, "rank_div": 1, "rank_udn": 28, "rank_lider": 44, "is_lider": true}, {"nombre": "NOE", "apellido": "CAMPOS", "udn": "Peru", "division": "SUPPLY CHAIN", "titulo": "ANALISTA DE PLANIFICACION LOGISTICA", "score": 90, "category": "Middle High", "rank_global": 161, "rank_div": 1, "rank_udn": 28, "rank_lider": 0, "is_lider": false}, {"nombre": "CAROLINA CARMELA", "apellido": "DEL AGUILA", "udn": "Peru", "division": "SUPPLY CHAIN", "titulo": "GERENTE LOGISTICA", "score": 90, "category": "Middle High", "rank_global": 162, "rank_div": 1, "rank_udn": 28, "rank_lider": 45, "is_lider": true}, {"nombre": "VICTORIA", "apellido": "DIAZ SALAMANCA", "udn": "Argentina", "division": "DIGITAL CHANNEL", "titulo": "DIGITAL SALES COORDINATOR", "score": 90, "category": "Middle High", "rank_global": 163, "rank_div": 2, "rank_udn": 24, "rank_lider": 0, "is_lider": false}, {"nombre": "ABRIL MICAELA", "apellido": "URONES ORTIZ ", "udn": "Argentina", "division": "BRAND MANAGEMENT", "titulo": "ANALISTA MARKETING DIGITAL", "score": 90, "category": "Middle High", "rank_global": 164, "rank_div": 6, "rank_udn": 24, "rank_lider": 0, "is_lider": false}, {"nombre": "DIANA", "apellido": "ROJAS", "udn": "Mexico", "division": "CAPITAL HUMANO", "titulo": "ANALISTA RECLUTAMIENTO", "score": 80, "category": "Middle", "rank_global": 165, "rank_div": 13, "rank_udn": 25, "rank_lider": 0, "is_lider": false}, {"nombre": "KARINA", "apellido": "TORALES", "udn": "Mexico", "division": "CAPITAL HUMANO", "titulo": "HRBP RETAIL", "score": 80, "category": "Middle", "rank_global": 166, "rank_div": 13, "rank_udn": 25, "rank_lider": 0, "is_lider": false}, {"nombre": "KARLA ELIZABETH", "apellido": "FUENTES", "udn": "Mexico", "division": "CAPITAL HUMANO", "titulo": "COORDINADORA EX & COMUNICACION INTERNA", "score": 80, "category": "Middle", "rank_global": 167, "rank_div": 13, "rank_udn": 25, "rank_lider": 46, "is_lider": true}, {"nombre": "DIANA", "apellido": "SILVA", "udn": "Mexico", "division": "CAPITAL HUMANO", "titulo": "HRBP RETAIL", "score": 80, "category": "Middle", "rank_global": 168, "rank_div": 13, "rank_udn": 25, "rank_lider": 0, "is_lider": false}, {"nombre": "JUANA", "apellido": "RODRIGUEZ", "udn": "Mexico", "division": "OPERACIONES RETAIL", "titulo": "VISUAL & COMMERCIAL REGIONAL", "score": 80, "category": "Middle", "rank_global": 169, "rank_div": 2, "rank_udn": 25, "rank_lider": 0, "is_lider": false}, {"nombre": "CYNTHIA LUDMILA", "apellido": "SCHINDLER", "udn": "Casa Matriz", "division": "ISADORA", "titulo": "DISEÑADOR SR", "score": 80, "category": "Middle", "rank_global": 170, "rank_div": 11, "rank_udn": 52, "rank_lider": 0, "is_lider": false}, {"nombre": "ALEXIS ALEJANDRO", "apellido": "FERNANDEZ", "udn": "Chile", "division": "CAPITAL HUMANO", "titulo": "PREVENCIONISTA DE RIESGOS", "score": 80, "category": "Middle", "rank_global": 171, "rank_div": 3, "rank_udn": 20, "rank_lider": 0, "is_lider": false}, {"nombre": "MARIBEL", "apellido": "ASTO", "udn": "Peru", "division": "SUPPLY CHAIN", "titulo": "SUPERVISOR E-COMMERCE", "score": 80, "category": "Middle", "rank_global": 172, "rank_div": 6, "rank_udn": 37, "rank_lider": 47, "is_lider": true}, {"nombre": "CRISTIAN", "apellido": "GOMEZ", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "SERVICE DESK ANALYST", "score": 80, "category": "Middle", "rank_global": 173, "rank_div": 27, "rank_udn": 52, "rank_lider": 0, "is_lider": false}, {"nombre": "SANDRA GUADALUPE", "apellido": "VELAZQUEZ", "udn": "Mexico", "division": "CAPITAL HUMANO", "titulo": "ANALISTA RECLUTAMIENTO", "score": 70, "category": "Low", "rank_global": 174, "rank_div": 17, "rank_udn": 30, "rank_lider": 0, "is_lider": false}, {"nombre": "MARIA YAZMIN", "apellido": "MARTINEZ", "udn": "Mexico", "division": "CAPITAL HUMANO", "titulo": "JEFE GESTION DE TALENTO", "score": 60, "category": "Low", "rank_global": 175, "rank_div": 18, "rank_udn": 31, "rank_lider": 48, "is_lider": true}, {"nombre": "SAMANTA", "apellido": "RAMIREZ", "udn": "Mexico", "division": "CAPITAL HUMANO", "titulo": "ANALISTA RECLUTAMIENTO", "score": 0, "category": "Low", "rank_global": 176, "rank_div": 19, "rank_udn": 32, "rank_lider": 0, "is_lider": false}, {"nombre": "SERGIO", "apellido": "GIFFARD", "udn": "Casa Matriz", "division": "TECNOLOGIA", "titulo": "DATABASE ADMINISTRATOR", "score": 0, "category": "Low", "rank_global": 177, "rank_div": 28, "rank_udn": 54, "rank_lider": 0, "is_lider": false}];
+
+
+const UDN_FLAGS={"Argentina":"🇦🇷","Casa Matriz":"🏠","Mexico":"🇲🇽","Peru":"🇵🇪","Chile":"🇨🇱","Brasil":"🇧🇷","España":"🇪🇸","China":"🇨🇳"};
+const CAT_COLOR={"Sobresaliente":"var(--sob)","Top":"var(--top)","Middle High":"var(--mh)","Middle":"var(--mid)","Low":"var(--low)"};
+const CAT_LABEL={"Sobresaliente":"★ Sobresaliente","Top":"⬆ Top","Middle High":"● Mid-High","Middle":"▼ Middle","Low":"↓ Low"};
+const CATS=["Sobresaliente","Top","Middle High","Middle","Low"];
+// Derive category from score (Sobresaliente = 110 exactly, Top = 100 exactly)
+function getCategory(d){ return d.category==='Top'&&d.score===110 ? 'Sobresaliente' : d.category; }
+const CIRC=276.5; // 2*pi*44
+
+let filtered=[...RAW];
+let sortField='rank_global', sortAsc=true;
+let currentPage=1, PER=20;
+let currentView='all';
+
+// ─── INIT ───
+function init(){
+  populateFilters();
+  applyFilters();
+}
+
+function populateFilters(){
+  const udns=[...new Set(RAW.map(d=>d.udn))].sort();
+  const divs=[...new Set(RAW.map(d=>d.division))].sort();
+  const us=document.getElementById('filterUDN'), ds=document.getElementById('filterDiv');
+  udns.forEach(u=>{const o=document.createElement('option');o.value=u;o.textContent=u;us.appendChild(o);});
+  divs.forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;ds.appendChild(o);});
+}
+
+// ─── VIEWS ───
+function setView(v){
+  currentView=v;
+  ['all','top','follow','leaders'].forEach(x=>{
+    document.getElementById('vb-'+x).classList.toggle('active',x===v);
+  });
+  applyFilters();
+}
+
+function toggleCatFilter(cat){
+  const sel=document.getElementById('filterCat');
+  sel.value = sel.value===cat ? '' : cat;
+  applyFilters();
+}
+
+// ─── CORE FILTER ───
+function applyFilters(){
+  const search=document.getElementById('searchInput').value.toLowerCase().trim();
+  const udn=document.getElementById('filterUDN').value;
+  const div=document.getElementById('filterDiv').value;
+  const cat=document.getElementById('filterCat').value;
+  const lider=document.getElementById('filterLider').value;
+  const alert=document.getElementById('filterAlert').value;
+
+  filtered=RAW.filter(d=>{
+    if(currentView==='top'&&d.category!=='Top'&&d.score!==110) return false;
+    if(currentView==='follow'&&!['Middle','Low'].includes(d.category)) return false;
+    if(currentView==='leaders'&&!d.is_lider) return false;
+    if(search){
+      const full=`${d.nombre} ${d.apellido} ${d.titulo} ${d.division} ${d.udn}`.toLowerCase();
+      if(!full.includes(search)) return false;
+    }
+    if(udn&&d.udn!==udn) return false;
+    if(div&&d.division!==div) return false;
+    if(cat){
+      if(cat==='Sobresaliente'){ if(d.score!==110) return false; }
+      else if(cat==='Top'){ if(d.category!=='Top'||d.score===110) return false; }
+      else if(d.category!==cat) return false;
+    }
+    if(lider==='yes'&&!d.is_lider) return false;
+    if(lider==='no'&&d.is_lider) return false;
+    if(alert==='over110'&&d.score<=110) return false;
+    return true;
+  });
+
+  // sort
+  filtered.sort((a,b)=>{
+    let av=a[sortField],bv=b[sortField];
+    if(typeof av==='string') av=av.toLowerCase(),bv=bv.toLowerCase();
+    if(av<bv) return sortAsc?-1:1;
+    if(av>bv) return sortAsc?1:-1;
+    return 0;
+  });
+
+  currentPage=1;
+  updateAll();
+}
+
+function resetFilters(){
+  document.getElementById('searchInput').value='';
+  document.getElementById('filterUDN').value='';
+  document.getElementById('filterDiv').value='';
+  document.getElementById('filterCat').value='';
+  document.getElementById('filterLider').value='';
+  document.getElementById('filterAlert').value='';
+  currentView='all';
+  ['all','top','follow','leaders'].forEach(x=>document.getElementById('vb-'+x).classList.toggle('active',x==='all'));
+  applyFilters();
+}
+
+function quickOver110(){
+  document.getElementById('filterAlert').value='over110';
+  applyFilters();
+}
+
+// ─── UPDATE ALL ───
+function updateAll(){
+  const n=filtered.length;
+  document.getElementById('resultCount').textContent=n;
+  document.getElementById('headerSub').textContent=`Blue Star Group · ${n} empleado${n!==1?'s':''} visible${n!==1?'s':''} · todos los gráficos reflejan la selección activa`;
+
+  // sidebar view counts
+  document.getElementById('vc-all').textContent=n;
+  document.getElementById('vc-top').textContent=filtered.filter(d=>d.category==='Top').length;  // includes 110+100
+  document.getElementById('vc-follow').textContent=filtered.filter(d=>['Middle','Low'].includes(d.category)).length;
+  document.getElementById('vc-leaders').textContent=filtered.filter(d=>d.is_lider).length;
+
+  // >110 alert — always check against full RAW set
+  const over110=RAW.filter(d=>d.score>110);
+  const alertEl=document.getElementById('over110Alert');
+  if(over110.length>0){
+    alertEl.classList.add('show');
+    document.getElementById('over110Count').textContent=over110.length;
+  } else {
+    alertEl.classList.remove('show');
+  }
+
+  // active filter bar
+  const ab=document.getElementById('activeBar');
+  const filters=[];
+  if(document.getElementById('filterUDN').value) filters.push(document.getElementById('filterUDN').value);
+  if(document.getElementById('filterDiv').value) filters.push(document.getElementById('filterDiv').value);
+  if(document.getElementById('filterCat').value) filters.push(document.getElementById('filterCat').value);
+  if(document.getElementById('filterAlert').value==='over110') filters.push('⚠ Puntaje >110');
+  if(document.getElementById('searchInput').value) filters.push('"'+document.getElementById('searchInput').value+'"');
+  if(currentView!=='all') filters.push('Vista: '+currentView);
+  if(filters.length){
+    ab.classList.add('show');
+    document.getElementById('activeBarText').textContent=filters.join(' · ');
+  } else {
+    ab.classList.remove('show');
+  }
+
+  updateKPIs();
+  updateDonut();
+  updateDistrib();
+  updateDivBars();
+  updateUDNGrid();
+  renderTable();
+  if(document.getElementById('tab-extremos').classList.contains('active')) renderExtremost();
+}
+
+// ─── KPIs ───
+function updateKPIs(){
+  const total=filtered.length||1;
+  const totalAll=RAW.length;
+  const counts={
+    'Sobresaliente': filtered.filter(d=>d.score===110).length,
+    'Top':           filtered.filter(d=>d.category==='Top'&&d.score===100).length,
+    'Middle High':   filtered.filter(d=>d.category==='Middle High').length,
+    'Middle':        filtered.filter(d=>d.category==='Middle').length,
+    'Low':           filtered.filter(d=>d.category==='Low').length,
+  };
+  const subMap={
+    'Sobresaliente': (n,pct)=>{
+      const cupo=Math.round(totalAll*0.25);
+      const sobAll=RAW.filter(d=>d.score===110).length;
+      const sobPctAll=(sobAll/totalAll*100).toFixed(1);
+      return `= 110 pts · ${pct}% · cupo 25%${sobAll>cupo?' ⚠ excede cupo':''}`;
+    },
+    'Top':           (_,pct)=>`= 100 pts · ${pct}%`,
+    'Middle High':   (_,pct)=>`90–99 pts · ${pct}%`,
+    'Middle':        (_,pct)=>`80–89 pts · ${pct}%`,
+    'Low':           (_,pct)=>`<80 pts · ${pct}%`,
+  };
+  CATS.forEach(cat=>{
+    const count=counts[cat];
+    const pct=(count/total*100).toFixed(1);
+    document.getElementById('kv-'+cat).textContent=count;
+    document.getElementById('kb-'+cat).style.width=pct+'%';
+    document.getElementById('ka-'+cat).textContent=subMap[cat](count,pct);
+    document.getElementById('kpi-'+cat).classList.toggle('active-filter',
+      document.getElementById('filterCat').value===cat);
+  });
+  // Sobresaliente cupo alert on KPI card
+  const sobAll=RAW.filter(d=>d.score===110).length;
+  const cupo=Math.round(RAW.length*0.25);
+  const kpiSob=document.getElementById('kpi-Sobresaliente');
+  kpiSob.style.borderColor = sobAll>cupo ? 'rgba(239,68,68,0.5)' : '';
+}
+
+// ─── DONUT ───
+function updateDonut(){
+  const total=filtered.length||1;
+  const counts={
+    'Sobresaliente': filtered.filter(d=>d.score===110).length,
+    'Top':           filtered.filter(d=>d.category==='Top'&&d.score===100).length,
+    'Middle High':   filtered.filter(d=>d.category==='Middle High').length,
+    'Middle':        filtered.filter(d=>d.category==='Middle').length,
+    'Low':           filtered.filter(d=>d.category==='Low').length,
+  };
+  const pcts={};
+  CATS.forEach(c=>pcts[c]=counts[c]/total);
+  const ids={'Sobresaliente':'Sob','Top':'Top','Middle High':'MH','Middle':'Mid','Low':'Low'};
+  let offset=0;
+  CATS.forEach(cat=>{
+    const arc=pcts[cat]*CIRC;
+    const el=document.getElementById('ds-'+ids[cat]);
+    el.setAttribute('stroke-dasharray',`${arc} ${CIRC}`);
+    el.setAttribute('stroke-dashoffset',-offset);
+    offset+=arc;
+  });
+  const sobPct=Math.round(counts['Sobresaliente']/total*100);
+  document.getElementById('donutPct').textContent=sobPct+'%';
+  document.getElementById('donutCat').textContent='SOBRESAL.';
+
+  const legend=document.getElementById('donutLegend');
+  legend.innerHTML=CATS.map(cat=>{
+    const c=counts[cat], p=(c/total*100).toFixed(1);
+    return `<div class="dl-item" onclick="toggleCatFilter('${cat}')">
+      <div class="dl-dot" style="background:${CAT_COLOR[cat]}"></div>
+      <div class="dl-label">${cat}</div>
+      <div class="dl-count" style="color:${CAT_COLOR[cat]}">${c}</div>
+      <div class="dl-pct">${p}%</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── FORCED DISTRIBUTION ───
+// Benchmark targets (typical corporate curve): Top 20%, MH 30%, Mid 30%, Low 15%, Error 5%
+const DISTRIB_CATS={
+  'Sobresaliente':{label:'Sobresaliente', color:'var(--sob)'},
+  'Top':          {label:'Top',           color:'var(--top)'},
+  'Middle High':  {label:'Middle High',   color:'var(--mh)'},
+  'Middle':       {label:'Middle',        color:'var(--mid)'},
+  'Low':          {label:'Low',           color:'var(--low)'},
+  'Error':        {label:'> 110 ⚠',      color:'#a855f7'},
+};
+
+function updateDistrib(){
+  const total=filtered.length||1;
+  const totalAll=RAW.length;
+  const cupo25=Math.round(totalAll*0.25);
+  const counts={
+    'Sobresaliente': filtered.filter(d=>d.score===110).length,
+    'Top':           filtered.filter(d=>d.category==='Top'&&d.score===100).length,
+    'Middle High':   filtered.filter(d=>d.category==='Middle High').length,
+    'Middle':        filtered.filter(d=>d.category==='Middle').length,
+    'Low':           filtered.filter(d=>d.category==='Low').length,
+    'Error':         filtered.filter(d=>d.score>110).length,
+  };
+  const maxCount=Math.max(...Object.values(counts),1);
+  const grid=document.getElementById('distribGrid');
+  grid.innerHTML=Object.entries(DISTRIB_CATS).map(([key,cfg])=>{
+    const n=counts[key];
+    const pct=(n/total*100);
+    const barH=Math.max((n/maxCount)*100,0);
+    // For Sobresaliente: show cupo alert if >25% of total nómina
+    const sobAll=RAW.filter(d=>d.score===110).length;
+    const overCupo=key==='Sobresaliente'&&sobAll>cupo25;
+    const cupoLine=key==='Sobresaliente'
+      ? `<div style="font-size:9px;margin-top:3px;color:${overCupo?'var(--low)':'var(--muted)'}">
+           ${overCupo?'⚠ excede cupo 25%':'cupo máx. 25%'}
+         </div>` : '';
+    const borderStyle=overCupo?'border:1px solid rgba(239,68,68,0.4);border-radius:7px;padding:2px;':'';
+    return `<div class="distrib-col" style="${borderStyle}" onclick="toggleCatFilter('${key==='Error'?'':key}')">
+      <div class="distrib-cat-label" style="color:${cfg.color}">${cfg.label}</div>
+      <div class="distrib-bar-wrap">
+        <div class="distrib-bar-inner" style="height:${barH}%;background:${cfg.color};opacity:.85"></div>
+      </div>
+      <div class="distrib-stats">
+        <div class="distrib-n">${n}</div>
+        <div class="distrib-pct" style="color:${cfg.color}">${pct.toFixed(1)}%</div>
+        ${cupoLine}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── DIV BARS ───
+function updateDivBars(){
+  const groups={};
+  filtered.forEach(d=>{
+    if(!groups[d.division]) groups[d.division]=[];
+    groups[d.division].push(d.score);
+  });
+  const avgs=Object.entries(groups).map(([div,scores])=>({
+    div, avg:scores.reduce((a,b)=>a+b,0)/scores.length, n:scores.length
+  })).sort((a,b)=>b.avg-a.avg).slice(0,8);
+
+  const max=avgs.length?avgs[0].avg:110;
+  document.getElementById('divBars').innerHTML=avgs.length?avgs.map(({div,avg,n})=>{
+    const pct=(avg/max*100).toFixed(1);
+    const col=avg>=100?'var(--top)':avg>=90?'var(--mh)':avg>=80?'var(--mid)':'var(--low)';
+    const label=div.length>18?div.slice(0,16)+'…':div;
+    return `<div class="bar-item">
+      <div class="bar-nm" title="${div}">${label}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${col}">${avg.toFixed(0)}</div></div>
+      <div class="bar-n">${n}</div>
+    </div>`;
+  }).join(''):'<div style="color:var(--muted);font-size:11px;padding:20px 0;text-align:center">Sin datos</div>';
+}
+
+// ─── UDN GRID ───
+function updateUDNGrid(){
+  const groups={};
+  filtered.forEach(d=>{
+    if(!groups[d.udn]) groups[d.udn]={scores:[],n:0};
+    groups[d.udn].scores.push(d.score);
+    groups[d.udn].n++;
+  });
+  const rows=Object.entries(groups).map(([udn,{scores,n}])=>({
+    udn, avg:scores.reduce((a,b)=>a+b,0)/scores.length, n
+  })).sort((a,b)=>b.avg-a.avg);
+
+  const max=rows.length?rows[0].avg:110;
+  document.getElementById('udnGrid').innerHTML=rows.length?rows.map(({udn,avg,n})=>{
+    const pct=(avg/max*100).toFixed(1);
+    const col=avg>=100?'var(--top)':avg>=90?'var(--mh)':avg>=80?'var(--mid)':'var(--low)';
+    const flag=UDN_FLAGS[udn]||'🌐';
+    return `<div class="udn-row">
+      <div class="udn-flag">${flag}</div>
+      <div class="udn-name">${udn}</div>
+      <div class="udn-track"><div class="udn-fill" style="width:${pct}%;background:${col}"></div></div>
+      <div class="udn-val" style="color:${col}">${avg.toFixed(1)}</div>
+      <div class="udn-n">${n}</div>
+    </div>`;
+  }).join(''):'<div style="color:var(--muted);font-size:11px;padding:20px 0;text-align:center">Sin datos</div>';
+}
+
+// ─── SORT ───
+function sortBy(field){
+  if(sortField===field) sortAsc=!sortAsc;
+  else{sortField=field;sortAsc=true;}
+  document.querySelectorAll('thead th').forEach(th=>th.classList.remove('sorted'));
+  const th=document.getElementById('th-'+field);
+  if(th) th.classList.add('sorted');
+  applyFilters();
+}
+
+// ─── TABLE ───
+function renderTable(){
+  const tbody=document.getElementById('tableBody');
+  const empty=document.getElementById('emptyState');
+  const total=filtered.length;
+  const pages=Math.ceil(total/PER)||1;
+  if(currentPage>pages) currentPage=pages;
+
+  const slice=filtered.slice((currentPage-1)*PER, currentPage*PER);
+  if(!slice.length){
+    tbody.innerHTML='';
+    empty.style.display='block';
+    document.getElementById('pagination').innerHTML='';
+    return;
+  }
+  empty.style.display='none';
+
+  tbody.innerHTML=slice.map(d=>{
+    const isError=d.score>110;
+    const effCat=isError?'Error':getCategory(d);
+    const rg=d.rank_global;
+    const rgClass=rg===1?'g1':rg<=3?'top3':rg<=10?'top10':'';
+    const col=isError?'#a855f7':CAT_COLOR[effCat];
+    const catClass=isError?'Error':effCat.replace(' ','-');
+    const catLabel=isError?'⚠ >110 Inválido':CAT_LABEL[effCat];
+    const lider=d.is_lider?`<span class="lider-tag">👑 Líder</span>`:'';
+    const errorPill=isError?`<span class="error-pill">⚠ >110</span>`:'';
+    const liderR=d.rank_lider>0?`<span class="rb ${d.rank_lider<=3?'top3':d.rank_lider<=10?'top10':''}">#${d.rank_lider}</span>`:`<span class="rb none">—</span>`;
+    const name=cap(d.nombre)+' '+cap(d.apellido);
+    const scoreDisplay=isError
+      ? `<div class="score-wrap"><div class="smini"><div class="smini-f" style="width:100%;background:#a855f7"></div></div><span class="sval score-error">${d.score} ⚠</span></div>`
+      : `<div class="score-wrap"><div class="smini"><div class="smini-f" style="width:${d.score/1.1}%;background:${col}"></div></div><span class="sval" style="color:${col}">${d.score}</span></div>`;
+    return `<tr class="${isError?'error-row':''}">
+      <td><span class="rb ${rgClass}">${rg===1?'🥇':rg===2?'🥈':rg===3?'🥉':'#'+rg}</span></td>
+      <td>
+        <div class="td-name">${name}${errorPill}</div>
+        <div class="td-sub">${d.titulo} ${lider}</div>
+      </td>
+      <td><div class="td-udn">${UDN_FLAGS[d.udn]||''} ${d.udn}</div></td>
+      <td><div class="td-div">${d.division}</div></td>
+      <td>${scoreDisplay}</td>
+      <td><span class="cat-badge ${catClass}">${catLabel}</span></td>
+      <td><span class="rb ${d.rank_div<=3?'top3':d.rank_div<=10?'top10':''}">#${d.rank_div}</span></td>
+      <td><span class="rb ${d.rank_udn<=3?'top3':d.rank_udn<=10?'top10':''}">#${d.rank_udn}</span></td>
+      <td>${liderR}</td>
+    </tr>`;
+  }).join('');
+
+  renderPag(pages,total);
+}
+
+function cap(s){return s.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());}
+
+function renderPag(pages,total){
+  const p=document.getElementById('pagination');
+  if(pages<=1){p.innerHTML='';return;}
+  let h=`<button class="pb" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
+  const range=[];
+  for(let i=1;i<=pages;i++){
+    if(i===1||i===pages||Math.abs(i-currentPage)<=1) range.push(i);
+    else if(range[range.length-1]!=='…') range.push('…');
+  }
+  range.forEach(r=>{
+    if(r==='…') h+=`<span class="pi">…</span>`;
+    else h+=`<button class="pb ${r===currentPage?'active':''}" onclick="goPage(${r})">${r}</button>`;
+  });
+  h+=`<button class="pb" onclick="goPage(${currentPage+1})" ${currentPage===pages?'disabled':''}>›</button>`;
+  h+=`<span class="pi">${(currentPage-1)*PER+1}–${Math.min(currentPage*PER,total)} de ${total}</span>`;
+  p.innerHTML=h;
+}
+
+function goPage(n){currentPage=n;renderTable();}
+
+// ─── TABS ───
+function switchTab(tab){
+  ['main','extremos'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
+    document.getElementById('tabn-'+t).classList.toggle('active',t===tab);
+  });
+  if(tab==='extremos') renderExtremost();
+}
+
+// ─── TOP / BOTTOM 5% ───
+function renderExtremost(){
+  const pool=[...filtered].sort((a,b)=>b.score-a.score);
+  const total=pool.length;
+  if(!total){
+    document.getElementById('xtop-body').innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">Sin datos</td></tr>';
+    document.getElementById('xbot-body').innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">Sin datos</td></tr>';
+    document.getElementById('xdiv-grid').innerHTML='<div class="xempty">Sin datos para mostrar con los filtros actuales</div>';
+    return;
+  }
+  const n5=Math.max(1,Math.round(total*0.05));
+  const topN=pool.slice(0,n5);
+  const botN=pool.slice(-n5);
+  const topAvg=(topN.reduce((s,d)=>s+d.score,0)/topN.length).toFixed(0);
+  const botAvg=(botN.reduce((s,d)=>s+d.score,0)/botN.length).toFixed(0);
+
+  // KPIs
+  document.getElementById('xcount').textContent=total;
+  document.getElementById('xkv-top').textContent=topN.length;
+  document.getElementById('xkv-bot').textContent=botN.length;
+  document.getElementById('xks-top').textContent=`5% de ${total} · prom. ${topAvg} pts`;
+  document.getElementById('xks-bot').textContent=`5% de ${total} · prom. ${botAvg} pts · requieren acompañamiento`;
+  document.getElementById('xbn-top').textContent=topN.length+' personas';
+  document.getElementById('xbn-bot').textContent=botN.length+' personas';
+  document.getElementById('xsub').textContent=`BSG · ${total} empleados visibles · distribución dinámica — los filtros del sidebar aplican aquí también`;
+
+  // Global top table
+  document.getElementById('xtop-body').innerHTML=topN.map((d,i)=>{
+    const col=d.score>=110?'var(--sob)':'var(--top)';
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
+    return `<tr>
+      <td><span class="xpos">${medal}</span></td>
+      <td><div class="xname">${cap(d.nombre)} ${cap(d.apellido)}</div><div class="xrole">${d.titulo}</div></td>
+      <td><div class="xdiv">${d.division.length>20?d.division.slice(0,18)+'…':d.division}</div></td>
+      <td><div class="xudn">${UDN_FLAGS[d.udn]||''} ${d.udn}</div></td>
+      <td><span class="xscore" style="color:${col}">${d.score}</span></td>
+    </tr>`;
+  }).join('');
+
+  // Global bottom table
+  document.getElementById('xbot-body').innerHTML=botN.map((d,i)=>{
+    const col=d.score<=60?'var(--low)':d.score<=80?'var(--mid)':'var(--mh)';
+    const pos=total-botN.length+i+1;
+    return `<tr>
+      <td><span class="xpos" style="color:var(--low)">#${pos}</span></td>
+      <td><div class="xname">${cap(d.nombre)} ${cap(d.apellido)}</div><div class="xrole">${d.titulo}</div></td>
+      <td><div class="xdiv">${d.division.length>20?d.division.slice(0,18)+'…':d.division}</div></td>
+      <td><div class="xudn">${UDN_FLAGS[d.udn]||''} ${d.udn}</div></td>
+      <td><span class="xscore" style="color:${col}">${d.score}</span></td>
+    </tr>`;
+  }).join('');
+
+  // Per-division breakdown
+  const divGroups={};
+  filtered.forEach(d=>{if(!divGroups[d.division])divGroups[d.division]=[];divGroups[d.division].push(d);});
+  const cards=Object.entries(divGroups)
+    .sort((a,b)=>b[1].length-a[1].length)
+    .map(([div,members])=>{
+      const sorted=[...members].sort((a,b)=>b.score-a.score);
+      const best=sorted[0], worst=sorted[sorted.length-1];
+      const bestName=cap(best.nombre)+' '+cap(best.apellido);
+      const worstName=cap(worst.nombre)+' '+cap(worst.apellido);
+      const bestCol=best.score>=110?'var(--sob)':'var(--top)';
+      const worstCol=worst.score<=60?'var(--low)':worst.score<=80?'var(--mid)':'var(--mh)';
+      const divLabel=div.length>28?div.slice(0,26)+'…':div;
+      const bestRole=best.titulo.length>32?best.titulo.slice(0,30)+'…':best.titulo;
+      const worstRole=worst.titulo.length>32?worst.titulo.slice(0,30)+'…':worst.titulo;
+      return `<div class="xdiv-card">
+        <div class="xdiv-name">${divLabel}<span class="xdiv-n">${sorted.length} personas</span></div>
+        <div class="xhalves">
+          <div class="xhalf top">
+            <div class="xhalf-lbl" style="color:var(--top)">🏆 Top 5%</div>
+            <div class="xhalf-name">${bestName}</div>
+            <div class="xhalf-score" style="color:${bestCol}">${best.score} pts</div>
+            <div class="xhalf-role">${bestRole}</div>
+          </div>
+          <div class="xhalf bot">
+            <div class="xhalf-lbl" style="color:var(--low)">⚠ Bottom 5%</div>
+            <div class="xhalf-name">${worstName}</div>
+            <div class="xhalf-score" style="color:${worstCol}">${worst.score} pts</div>
+            <div class="xhalf-role">${worstRole}</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  document.getElementById('xdiv-grid').innerHTML=cards||'<div class="xempty">Sin datos</div>';
+}
+
+// LOAD DATA FROM GOOGLE SHEETS
+async function loadData() {
+  const loader = document.getElementById('loaderOverlay');
+  const errEl = document.getElementById('loaderError');
+  const statusEl = document.getElementById('loaderStatus');
+
+  // Use a CORS proxy to avoid browser blocking
+  const PROXY = 'https://corsproxy.io/?';
+  const urls = [
+    PROXY + encodeURIComponent(CSV_URL),
+    CSV_URL
+  ];
+
+  for (const url of urls) {
+    try {
+      statusEl.textContent = 'Conectando con Google Sheets...';
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeout);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      statusEl.textContent = 'Procesando datos...';
+      const text = await res.text();
+      const rows = parseCSV(text);
+      const mapped = rows.map(mapRow).filter(function(r){ return r.nombre; });
+      if (!mapped.length) throw new Error('Sin datos validos');
+      RAW = mapped;
+      loader.style.display = 'none';
+      document.getElementById('mainContent').style.display = 'flex';
+      init();
+      return;
+    } catch(e) {
+      console.warn('Intento fallido:', url, e.message);
+    }
+  }
+
+  // All failed, use fallback
+  errEl.style.display = 'block';
+  errEl.textContent = 'No se pudo conectar al Sheet. Mostrando datos guardados.';
+  statusEl.textContent = 'Cargando datos de respaldo...';
+  setTimeout(function() {
+    RAW = FALLBACK_RAW;
+    loader.style.display = 'none';
+    document.getElementById('mainContent').style.display = 'flex';
+    init();
+  }, 1500);
+}
+
+loadData();
+
+</script>
+</body>
+</html>
